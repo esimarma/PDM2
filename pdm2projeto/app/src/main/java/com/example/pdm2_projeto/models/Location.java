@@ -13,10 +13,8 @@ public class Location {
     private String categoryId;
     private String createdAt;
 
-    // Construtor vazio necessário para o Firestore
     public Location() {}
 
-    // Construtor completo
     public Location(String id, String name, String description, String address, double latitude,
                     double longitude, String categoryId, String createdAt) {
         this.id = id;
@@ -29,7 +27,6 @@ public class Location {
         this.createdAt = createdAt;
     }
 
-    // Getters e Setters
     public String getId() {
         return id;
     }
