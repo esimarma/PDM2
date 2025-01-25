@@ -12,26 +12,27 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.pdm2_projeto.interfaces.FirestoreCallback;
+import com.example.pdm2_projeto.models.User;
+import com.example.pdm2_projeto.repositories.UsersRepository;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Activity responsible for registering new users.
+ */
 public class RegisterActivity extends AppCompatActivity {
 
-    private FirebaseAuth auth;
-    private FirebaseFirestore db;
+    private UsersRepository usersRepository; // Repository for managing operations with Firestore
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        // Initialize the users repository
+        usersRepository = new UsersRepository();
 
-        // Find views
+        // Bind UI elements to variables
         EditText nameField = findViewById(R.id.name_field);
         EditText emailField = findViewById(R.id.email_field);
         EditText passwordField = findViewById(R.id.password_field);
@@ -41,63 +42,86 @@ public class RegisterActivity extends AppCompatActivity {
         ImageView backButton = findViewById(R.id.back_button);
         TextView loginText = findViewById(R.id.login_text);
 
-        // Back button functionality
-        backButton.setOnClickListener(v -> finish());
+        // Back button configuration
+        backButton.setOnClickListener(v -> finish()); // Closes the current activity and returns to the previous one
 
-        // Show password checkbox
+        // Configuration to show or hide the password
         showPassword.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int inputType = isChecked
-                    ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                    ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD // Show password
+                    : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD; // Hide password
             passwordField.setInputType(inputType);
             confirmPasswordField.setInputType(inputType);
+
+            // Ensures the cursor remains at the end of the text after changing input type
             passwordField.setSelection(passwordField.getText().length());
             confirmPasswordField.setSelection(confirmPasswordField.getText().length());
         });
 
-        // Register button functionality
+        // Configuration of the register button
         registerButton.setOnClickListener(v -> {
             String name = nameField.getText().toString().trim();
             String email = emailField.getText().toString().trim();
             String password = passwordField.getText().toString().trim();
             String confirmPassword = confirmPasswordField.getText().toString().trim();
 
+            // Validation of mandatory fields
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please fill in all fields.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Validation of password match
             if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "As palavras-passe não coincidem.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            auth.createUserWithEmailAndPassword(email, password)
+            // User creation in Firebase Authentication
+            FirebaseAuth.getInstance()
+                    .createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
-                        Map<String, Object> user = new HashMap<>();
-                        user.put("name", name);
-                        user.put("email", email);
+                        String userId = authResult.getUser().getUid(); // Get the authenticated user's ID
 
-                        db.collection("users").document(authResult.getUser().getUid()).set(user)
-                                .addOnSuccessListener(unused -> {
-                                    Toast.makeText(RegisterActivity.this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(RegisterActivity.this, "Erro ao salvar os dados do usuário: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                });
+                        // Create the User model
+                        User user = new User(
+                                userId,
+                                name,
+                                email,
+                                null, // Profile photo URL (can be null during registration)
+                                String.valueOf(System.currentTimeMillis()) // Timestamp as a String
+                        );
+
+                        // Register the user in Firestore
+                        usersRepository.registerUser(user, new FirestoreCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+                                // Display a success message
+                                Toast.makeText(RegisterActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+
+                                // Redirect to the login screen
+                                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                finish();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                // Display an error message when failing to save user data in Firestore
+                                Toast.makeText(RegisterActivity.this, "Error saving user data: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(RegisterActivity.this, "Erro ao criar conta: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        // Display an error message when failing to create the account in Firebase Authentication
+                        Toast.makeText(RegisterActivity.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
         });
 
-        // Navigate to Login
+        // Configuration to navigate to the login screen
         loginText.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
-            finish();
+            finish(); // Close the registration screen
         });
     }
 }
