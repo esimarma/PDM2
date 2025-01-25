@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,6 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pdm2projeto"
         tools:targetApi="31">
+
+        <activity android:name=".LoginActivity" />
+
+        <activity android:name=".RegisterActivity" />
+
+        <activity android:name=".SettingsActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

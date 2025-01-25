@@ -1,40 +1,46 @@
 package com.example.pdm2_projeto;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TESTE Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", "João");
-        user.put("email", "joao@example.com");
-        user.put("age", 25);
+        // Set default fragment
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new HomeFragment())
+                .commit();
 
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(documentReference ->
-                        Log.d("Firestore", "Documento criado com ID: " + documentReference.getId())
-                )
-                .addOnFailureListener(e ->
-                        Log.w("Firestore", "Erro ao criar documento", e)
-                );
-    }
+            bottomNavigationView.setOnItemSelectedListener(item -> {
+                Fragment selectedFragment = null;
+
+                if (item.getItemId() == R.id.nav_home) {
+                    selectedFragment = new HomeFragment();
+                } else if (item.getItemId() == R.id.nav_profile) {
+                    selectedFragment = new ProfileFragment();
+                } else if (item.getItemId() == R.id.nav_map) {
+                    selectedFragment = new MapFragment();
+                }
+
+                if (selectedFragment != null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, selectedFragment)
+                            .commit();
+                }
+                return true;
+            });
+
+        }
 }
