@@ -25,10 +25,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCJr4txDUD7yaB-CvwrpYPb7xQFwTK3Gbg" />
 
-        <activity android:name=".LoginActivity" />
-
-        <activity android:name=".RegisterActivity" />
-
         <activity android:name=".SettingsActivity" />
 
         <activity

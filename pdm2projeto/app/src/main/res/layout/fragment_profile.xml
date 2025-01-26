@@ -6,118 +6,78 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Top Header -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_header"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:background="#A9A9A9"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Header Title -->
-        <TextView
-            android:id="@+id/header_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Perfil"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="16dp" />
-
-        <!-- Menu Icon -->
-        <ImageView
-            android:id="@+id/menu_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_settings"
-            android:contentDescription="Menu Icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="16dp" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
     <!-- Logged-Out State -->
+
+    <!-- Logged-In State -->
+
     <LinearLayout
         android:id="@+id/logged_out_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/top_header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="156dp"
         android:gravity="center"
-        android:layout_marginTop="16dp">
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Logo -->
         <ImageView
             android:id="@+id/logged_out_logo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:src="@drawable/ic_app"
-            android:contentDescription="Logo" />
+            android:contentDescription="Logo"
+            android:src="@drawable/ic_app_round" />
 
         <!-- Logged Out Text -->
         <TextView
             android:id="@+id/logged_out_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Ainda não tem sessão iniciada"
-            android:textSize="18sp"
-            android:layout_marginTop="16dp" />
+            android:textSize="18sp" />
 
         <!-- Login Button -->
         <Button
             android:id="@+id/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Iniciar Sessão"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#3F3F3F"
+            android:text="Iniciar Sessão" />
 
         <!-- "Ainda não tem conta?" Text -->
         <TextView
             android:id="@+id/text_no_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Ainda não tem conta?"
-            android:textSize="14sp"
             android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/login_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            android:textSize="14sp" />
 
         <!-- "Criar conta" Text Button -->
         <TextView
             android:id="@+id/register_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="Criar conta"
+            android:textColor="@android:color/black"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_blue_dark"
-            app:layout_constraintTop_toBottomOf="@id/text_no_account"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="4dp" />
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Logged-In State -->
     <LinearLayout
-
         android:id="@+id/logged_in_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/top_header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:visibility="gone"
         android:layout_marginTop="16dp">
 
@@ -147,7 +107,7 @@
             android:background="#CCCCCC"
             android:layout_marginTop="16dp" />
 
-        <!-- Favorites Section -->
+        <!-- RecyclerView for Favorites -->
         <TextView
             android:id="@+id/favorites_label"
             android:layout_width="wrap_content"
@@ -156,12 +116,10 @@
             android:textSize="18sp"
             android:layout_marginTop="16dp" />
 
-        <!-- Placeholder for Favorite Places -->
-        <TextView
-            android:id="@+id/favorite_place"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favorites_recycler_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lugar #2"
             android:layout_marginTop="8dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
