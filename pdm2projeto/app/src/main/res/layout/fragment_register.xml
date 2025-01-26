@@ -12,24 +12,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_back"
-        android:contentDescription="Back Button"
+        android:contentDescription="@string/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         app:tint="@android:color/black" />
 
+
     <!-- Title -->
-
-    <!-- Profile Logo -->
-
-    <!-- RecyclerView -->
     <TextView
         android:id="@+id/register_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Criar Conta"
+        android:text="@string/create_account"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,6 +34,7 @@
         app:layout_constraintStart_toEndOf="@id/back_button"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Profile Logo -->
     <ImageView
         android:id="@+id/profile_logo"
         android:layout_width="120dp"
@@ -48,38 +46,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/register_title" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/register_recycler_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/profile_logo"
-        app:layout_constraintBottom_toTopOf="@id/name_field"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Name Field -->
-
-    <!-- Email Field -->
-
     <EditText
         android:id="@+id/name_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="192dp"
-        android:hint="Nome"
+        android:layout_marginTop="20dp"
+        android:hint="@string/name"
         android:inputType="textPersonName"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register_recycler_view" />
+        app:layout_constraintTop_toBottomOf="@id/profile_logo" />
 
+    <!-- Email Field -->
     <EditText
         android:id="@+id/email_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="E-mail"
+        android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:layout_marginTop="16dp"
         android:padding="12dp"
@@ -92,7 +79,7 @@
         android:id="@+id/password_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Palavra-passe"
+        android:hint="@string/password"
         android:inputType="textPassword"
         android:layout_marginTop="16dp"
         android:padding="12dp"
@@ -105,7 +92,7 @@
         android:id="@+id/confirm_password_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Confirmar palavra-passe"
+        android:hint="@string/confirm_password"
         android:inputType="textPassword"
         android:layout_marginTop="16dp"
         android:padding="12dp"
@@ -118,7 +105,7 @@
         android:id="@+id/show_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mostrar a palavra-passe"
+        android:text="@string/show_password"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/confirm_password_field"
         app:layout_constraintStart_toStartOf="parent" />
@@ -133,7 +120,7 @@
         android:layout_marginTop="16dp"
         android:backgroundTint="#3F3F3F"
         android:padding="12dp"
-        android:text="Criar conta"
+        android:text="@string/create_account"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -144,7 +131,7 @@
         android:id="@+id/login_ask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Já tem conta?"
+        android:text="@string/have_account"
         android:textSize="14sp"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
@@ -157,8 +144,9 @@
         android:id="@+id/login_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Iniciar sessão"
+        android:text="@string/login"
         android:textSize="14sp"
+        android:textStyle="bold"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintTop_toBottomOf="@id/login_ask"

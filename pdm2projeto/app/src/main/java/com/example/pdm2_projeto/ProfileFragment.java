@@ -30,68 +30,106 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Initialize views
+        // Initialize views and UI components
         initializeViews(view);
 
-        // Initialize User Repository
+        // Set up the user repository
         usersRepository = new UsersRepository();
-        FirebaseUser currentUser = usersRepository.getAuthenticatedUser();
 
-        // Handle logged-in or logged-out state
-        if (currentUser != null) {
-            handleLoggedInState(currentUser);
-        } else {
-            handleLoggedOutState();
-        }
+        // Check user authentication state
+        checkUserAuthentication();
 
         return view;
     }
 
+    /**
+     * Initializes views and sets up click listeners for buttons and navigation.
+     */
     private void initializeViews(View view) {
         loggedOutContainer = view.findViewById(R.id.logged_out_container);
         loggedInContainer = view.findViewById(R.id.logged_in_container);
         welcomeText = view.findViewById(R.id.welcome_text);
 
-        // Reference to the top header title (from activity_main.xml)
+        // Ensure bottom navigation and top header are visible
+        setNavigationAndHeaderVisibility(View.VISIBLE);
+
+        // Update the header title
+        updateHeaderTitle();
+
+        // Set up navigation for settings button
+        usersRepository = new UsersRepository();
+
+        // Set up navigation for login and register actions
+        setupAuthenticationNavigation(view);
+    }
+
+    /**
+     * Ensures the bottom navigation bar and top header are visible.
+     */
+    private void setNavigationAndHeaderVisibility(int visibility) {
+        requireActivity().findViewById(R.id.bottom_navigation).setVisibility(visibility);
+        requireActivity().findViewById(R.id.top_header).setVisibility(visibility);
+    }
+
+    /**
+     * Updates the header title to display "Profile".
+     */
+    private void updateHeaderTitle() {
         headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
-            headerTitle.setText("Perfil"); // Update the header title for this fragment
-        }
-
-        Button loginButton = view.findViewById(R.id.button_login);
-        TextView registerText = view.findViewById(R.id.register_text);
-        ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
-
-        // Navigate to LoginFragment
-        loginButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new LoginFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-
-        // Navigate to RegisterFragment
-        registerText.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new RegisterFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-
-        // Navigate to SettingsFragment
-        if (settingsButton != null) {
-            settingsButton.setOnClickListener(v -> {
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, new SettingsFragment())
-                        .addToBackStack(null)
-                        .commit();
-            });
+            headerTitle.setText(getString(R.string.profile));
         }
     }
 
+    /**
+     * Sets up the settings button to navigate to the SettingsFragment.
+     */
+    private void setupSettingsButton() {
+        ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
+        if (settingsButton != null) {
+            settingsButton.setOnClickListener(v -> navigateToFragment(new SettingsFragment()));
+        }
+    }
+
+    /**
+     * Sets up click listeners for login and register navigation.
+     */
+    private void setupAuthenticationNavigation(View view) {
+        Button loginButton = view.findViewById(R.id.button_login);
+        TextView registerText = view.findViewById(R.id.register_text);
+
+        loginButton.setOnClickListener(v -> navigateToFragment(new LoginFragment()));
+        registerText.setOnClickListener(v -> navigateToFragment(new RegisterFragment()));
+    }
+
+    /**
+     * Navigates to the specified fragment.
+     */
+    private void navigateToFragment(Fragment fragment) {
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+
+    /**
+     * Checks if a user is authenticated and handles the UI state accordingly.
+     */
+    private void checkUserAuthentication() {
+        FirebaseUser currentUser = usersRepository.getAuthenticatedUser();
+
+        if (currentUser != null) {
+            handleLoggedInState(currentUser);
+        } else {
+            handleLoggedOutState();
+        }
+    }
+
+    /**
+     * Handles the UI and data fetching for a logged-in user.
+     */
     private void handleLoggedInState(FirebaseUser currentUser) {
         toggleVisibility(true);
 
@@ -100,21 +138,27 @@ public class ProfileFragment extends Fragment {
             public void onSuccess(Object result) {
                 User user = (User) result;
                 String name = user.getName();
-                welcomeText.setText("Hello " + (name != null ? name : "User"));
+                welcomeText.setText(getString(R.string.hello) + " " + (name != null ? name : getString(R.string.user)));
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e("ProfileFragment", "Error fetching user data: " + e.getMessage());
-                welcomeText.setText("Hello User");
+                welcomeText.setText(getString(R.string.hello) + " " + getString(R.string.user));
             }
         });
     }
 
+    /**
+     * Handles the UI state for a logged-out user.
+     */
     private void handleLoggedOutState() {
         toggleVisibility(false);
     }
 
+    /**
+     * Toggles visibility of the logged-in and logged-out containers.
+     */
     private void toggleVisibility(boolean isLoggedIn) {
         loggedOutContainer.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
         loggedInContainer.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
@@ -123,10 +167,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Ensure the top header is visible when ProfileFragment is active
-        View topHeader = requireActivity().findViewById(R.id.top_header);
-        if (topHeader != null) {
-            topHeader.setVisibility(View.VISIBLE);
-        }
+        // Ensure the top header is visible when this fragment is active
+        setNavigationAndHeaderVisibility(View.VISIBLE);
     }
 }

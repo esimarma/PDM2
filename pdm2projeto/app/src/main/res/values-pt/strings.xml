@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PointView</string>
+    <string name="home">Início</string>
+    <string name="map">Mapa</string>
+    <string name="profile">Prefil</string>
+    <string name="language_option">Idioma</string>
+    <string name="github_option">Repositório do GitHub</string>
+    <string name="logout_option">Sair</string>
+    <string name="language_dialog_title">Selecione o idioma</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_english">Inglês</string>
+    <string name="cancel">Cancelar</string>
+    <string name="settings">Definições</string>
+    <string name="back">Voltar</string>
+    <string name="favorites">Favoritos</string>
+    <string name="hello">Olá</string>
+    <string name="user">Utilizador</string>
+
+    <string name="welcome">Bem-Vindo</string>
+    <string name="not_signed_in">Ainda não tem sessão iniciada</string>
+    <string name="login">Iniciar Sessão</string>
+    <string name="dont_have_account">Ainda não tem conta?</string>
+    <string name="create_account">Criar conta</string>
+    <string name="name">Nome</string>
+    <string name="email">E-mail</string>
+    <string name="password">Palavra-passe</string>
+    <string name="confirm_password">Confirmar palavra-passe</string>
+    <string name="show_password">Mostrar a palavra-passe</string>
+    <string name="have_account">Já tem conta?</string>
+    <string name="forgot_password">Esqueceu-se da palavra-passe?</string>
+    <string name="login_failed">Erro ao iniciar sessão:</string>
+    <string name="invalid_email">Email inválido.</string>
+    <string name="password_length">A Palavra-pass tem de ter pelo menos 6 caracteres.</string>
+
+    <string name="your_location">Estás Aqui!</string>
+    <string name="your_location_error">Falha ao obter sua localização.</string>
+    <string name="permission_denied">Permissão negada. Não é possível aceder à localização.</string>
+    <string name="failed_to_fetch_locations">"Erro ao ir buscar localizações à base de dados."</string>
+
+
+</resources>

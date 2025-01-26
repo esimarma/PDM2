@@ -53,47 +53,16 @@ public class LoginFragment extends Fragment {
         hideTopHeader();
 
         // Configure the back button
-        backButton.setOnClickListener(v -> {
-            Fragment profileFragment = new ProfileFragment();
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, profileFragment)
-                    .commit();
-        });
+        configureBackButton(backButton);
 
-        // Show/hide password functionality
-        showPasswordCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            passwordField.setInputType(isChecked
-                    ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                    : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            passwordField.setSelection(passwordField.getText().length());
-        });
+        // Configure the show/hide password functionality
+        configureShowPasswordCheckbox(showPasswordCheckbox);
 
-        // Login button functionality
-        loginButton.setOnClickListener(v -> {
-            String email = emailField.getText().toString().trim();
-            String password = passwordField.getText().toString().trim();
-
-            if (!validateInputs(email, password)) return;
-
-            loginButton.setEnabled(false); // Disable button to prevent multiple requests
-            auth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener(authResult -> fetchUserData())
-                    .addOnFailureListener(e -> {
-                        showToast("Login failed: " + e.getMessage());
-                        loginButton.setEnabled(true);
-                    });
-        });
+        // Configure the login button
+        configureLoginButton();
 
         // Register button opens the RegisterFragment
-        registerButton.setOnClickListener(v -> {
-            Fragment registerFragment = new RegisterFragment();
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, registerFragment) // Adjust container ID as necessary
-                    .addToBackStack(null)
-                    .commit();
-        });
+        configureRegisterButton(registerButton);
 
         return view;
     }
@@ -106,21 +75,68 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    private void configureBackButton(ImageView backButton) {
+        backButton.setOnClickListener(v -> {
+            Fragment profileFragment = new ProfileFragment();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, profileFragment)
+                    .commit();
+        });
+    }
+
+    private void configureShowPasswordCheckbox(CheckBox showPasswordCheckbox) {
+        showPasswordCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            passwordField.setInputType(isChecked
+                    ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            passwordField.setSelection(passwordField.getText().length());
+        });
+    }
+
+    private void configureLoginButton() {
+        loginButton.setOnClickListener(v -> {
+            String email = emailField.getText().toString().trim();
+            String password = passwordField.getText().toString().trim();
+
+            if (!validateInputs(email, password)) return;
+
+            loginButton.setEnabled(false); // Disable button to prevent multiple requests
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener(authResult -> fetchUserData())
+                    .addOnFailureListener(e -> {
+                        showToast(getString(R.string.login_failed) + e.getMessage());
+                        loginButton.setEnabled(true);
+                    });
+        });
+    }
+
+    private void configureRegisterButton(TextView registerButton) {
+        registerButton.setOnClickListener(v -> {
+            Fragment registerFragment = new RegisterFragment();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, registerFragment) // Adjust container ID as necessary
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
     private boolean validateInputs(String email, String password) {
         if (email.isEmpty()) {
-            showToast("Email cannot be empty.");
+            showToast(getString(R.string.invalid_email));
             return false;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showToast("Invalid email format.");
+            showToast(getString(R.string.invalid_email));
             return false;
         }
         if (password.isEmpty()) {
-            showToast("Password cannot be empty.");
+            showToast(getString(R.string.password_length));
             return false;
         }
         if (password.length() < 6) {
-            showToast("Password must be at least 6 characters.");
+            showToast(getString(R.string.password_length));
             return false;
         }
         return true;
@@ -134,7 +150,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onSuccess(Object result) {
                 User user = (User) result;
-                showToast("Welcome, " + user.getName());
+                showToast(getString(R.string.welcome) + ", " + user.getName());
 
                 // Replace LoginFragment with ProfileFragment after successful login
                 Fragment profileFragment = new ProfileFragment();
@@ -172,3 +188,4 @@ public class LoginFragment extends Fragment {
         }
     }
 }
+

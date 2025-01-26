@@ -1,5 +1,7 @@
 package com.example.pdm2_projeto;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +11,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
@@ -16,6 +20,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Carregar idioma salvo (ou usar o idioma do sistema como padrão)
+        SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
+        String languageCode = preferences.getString("language_preference", Locale.getDefault().getLanguage());
+
+        // Aplicar o idioma antes de carregar o layout
+        setLocale(languageCode);
+
+        setContentView(R.layout.activity_main);
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -74,5 +87,15 @@ public class MainActivity extends AppCompatActivity {
      */
     public void showRegisterFragment() {
         loadFragment(new RegisterFragment(), true); // Hide bottom navigation for RegisterFragment
+    }
+
+    private void setLocale(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

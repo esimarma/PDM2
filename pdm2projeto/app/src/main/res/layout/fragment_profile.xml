@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Ainda não tem sessão iniciada"
+            android:text="@string/not_signed_in"
             android:textSize="18sp" />
 
         <!-- Login Button -->
@@ -45,8 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#3F3F3F"
-            android:text="Iniciar Sessão" />
+            android:backgroundTint="@color/app_gray"
+            android:text="@string/login" />
 
         <!-- "Ainda não tem conta?" Text -->
         <TextView
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Ainda não tem conta?"
+            android:text="@string/dont_have_account"
             android:textColor="@android:color/black"
             android:textSize="14sp" />
 
@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Criar conta"
+            android:text="@string/create_account"
             android:textColor="@android:color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -112,7 +112,7 @@
             android:id="@+id/favorites_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Favoritos"
+            android:text="@string/favorites"
             android:textSize="18sp"
             android:layout_marginTop="16dp" />
 
