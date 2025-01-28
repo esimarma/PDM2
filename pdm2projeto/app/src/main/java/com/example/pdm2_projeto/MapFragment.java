@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.pdm2_projeto.models.Location;
 import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,10 +24,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,6 +41,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationsRepository locationRepository;
     private TextView headerTitle;
+    private final HashMap<Marker, LocationInfo> markerData = new HashMap<>();
+
+    static class LocationInfo {
+        String title;
+        String description;
+        String imageUrl;
+
+        LocationInfo(String title, String description, String imageUrl) {
+            this.title = title;
+            this.description = description;
+            this.imageUrl = imageUrl;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,11 +64,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize location client and repository
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
         locationRepository = new LocationsRepository();
 
-        // Set up the map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
@@ -60,27 +74,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             showToast("Map fragment is null.");
         }
 
-        // Make the bottom navigation bar visible
         requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
-
-        // Make the top header visible
         requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
 
-        // Find and update the header title for this fragment
         headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
-            headerTitle.setText(getString(R.string.map)); // Set the header title for this fragment
+            headerTitle.setText(getString(R.string.map));
         }
 
-        // Find the settings button and set up a click listener to navigate to the SettingsFragment
         ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
         if (settingsButton != null) {
             settingsButton.setOnClickListener(v -> {
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, new SettingsFragment()) // Replace current fragment with SettingsFragment
-                        .addToBackStack(null) // Add the transaction to the back stack
-                        .commit(); // Commit the fragment transaction
+                        .replace(R.id.fragment_container, new SettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
             });
         }
     }
@@ -89,7 +98,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Enable user location on the map if permission is granted
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -97,10 +105,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.setMyLocationEnabled(true);
         }
 
-        // Fetch user location and add a marker
-        getUserLocation();
+        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
 
-        // Fetch locations from Firestore and add markers
+        // Verifica se há argumentos (localização clicada)
+        Bundle args = getArguments();
+        if (args != null) {
+            String locationName = args.getString("locationName");
+            String locationDescription = args.getString("locationDescription");
+            String imageUrl = args.getString("imageUrl");
+            double latitude = args.getDouble("latitude");
+            double longitude = args.getDouble("longitude");
+
+            LatLng locationLatLng = new LatLng(latitude, longitude);
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .position(locationLatLng)
+                    .title(locationName)
+                    .snippet(locationDescription)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+            if (marker != null) {
+                marker.showInfoWindow();
+            }
+
+            // Move a câmera para a localização especificada
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 15));
+        } else {
+            // Caso contrário, usa a localização do utilizador
+            getUserLocation();
+        }
+
+        // Carrega outras localizações, como as do Firestore
         fetchLocationsFromFirestore();
     }
 
@@ -118,8 +152,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             // Convert the location to LatLng and add a marker
                             LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                             mMap.addMarker(new MarkerOptions()
-                                    .position(userLatLng).
-                                    title(getString(R.string.your_location)));
+                                    .position(userLatLng)
+                                    .title(getString(R.string.your_location))); // Use default marker
+
                             // Center the camera on the user's location
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 12));
                         } else {
@@ -140,61 +175,81 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    /**
-     * Requests location permission from the user.
-     */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(requireActivity(),
                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
                 1);
     }
 
-    /**
-     * Handles the result of location permission requests.
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Permission granted - get the location
             getUserLocation();
         } else {
-            // Permission denied - show a message to the user
             showToast(getString(R.string.permission_denied));
         }
     }
 
-    /**
-     * Displays a Toast message to the user.
-     */
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Fetches locations from Firestore and adds markers to the map.
-     */
     private void fetchLocationsFromFirestore() {
         locationRepository.getAllLocations(new LocationsRepository.LocationCallback() {
             @Override
             public void onSuccess(List<Location> locations) {
                 for (Location location : locations) {
                     LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.addMarker(new MarkerOptions()
+                    Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(position)
                             .title(location.getName())
                             .snippet(location.getDescription())
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+
+                    markerData.put(marker, new LocationInfo(location.getName(), location.getDescription(), location.getImageUrl()));
                 }
             }
 
             @Override
             public void onFailure(Exception e) {
-                // Handle errors (e.g., log them or show a message to the user)
                 showToast(getString(R.string.failed_to_fetch_locations));
                 e.printStackTrace();
             }
         });
+    }
+
+    class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private final View mWindow;
+
+        CustomInfoWindowAdapter() {
+            mWindow = LayoutInflater.from(getContext()).inflate(R.layout.custom_info_window, null);
+        }
+
+        private void renderWindowText(Marker marker, View view) {
+            LocationInfo locationInfo = markerData.get(marker);
+            if (locationInfo == null) return;
+
+            TextView title = view.findViewById(R.id.info_window_title);
+            title.setText(locationInfo.title);
+
+            TextView description = view.findViewById(R.id.info_window_description);
+            description.setText(locationInfo.description);
+
+            ImageView image = view.findViewById(R.id.info_window_image);
+            Glide.with(getContext()).load(locationInfo.imageUrl).into(image);
+        }
+
+        @Override
+        public View getInfoWindow(@NonNull Marker marker) {
+            renderWindowText(marker, mWindow);
+            return mWindow;
+        }
+
+        @Override
+        public View getInfoContents(@NonNull Marker marker) {
+            return null;
+        }
     }
 }

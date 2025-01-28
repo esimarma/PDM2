@@ -1,5 +1,7 @@
 package com.example.pdm2_projeto.repositories;
 
+import android.util.Log;
+
 import com.example.pdm2_projeto.models.Location;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,40 +33,40 @@ public class LocationsRepository {
      * @param callback Callback interface to handle the results or errors.
      */
     public void getAllLocations(LocationCallback callback) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("locations").get()
+        locationCollection.get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful() && task.getResult() != null) {
                         List<Location> locations = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                String id = document.getString("id");
+                                String id = document.getId(); // Firestore Document ID as fallback
                                 String name = document.getString("name");
                                 String description = document.getString("description");
                                 String address = document.getString("address");
                                 String categoryId = document.getString("categoryId");
                                 String createdAt = document.getString("createdAt");
+                                String imageUrl = document.getString("imageUrl");
+                                String country = document.getString("country");
 
                                 // Tratamento de latitude e longitude
-                                double latitude = 0.0;
-                                double longitude = 0.0;
-                                try {
-                                    latitude = document.getDouble("latitude");
-                                    longitude = document.getDouble("longitude");
-                                } catch (ClassCastException e) {
-                                    // Tenta converter caso os valores sejam String
-                                    latitude = Double.parseDouble(document.getString("latitude"));
-                                    longitude = Double.parseDouble(document.getString("longitude"));
-                                }
+                                double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
+                                double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
 
-                                locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, createdAt));
+                                // Verifica campos obrigatórios antes de adicionar à lista
+                                if (name != null && description != null) {
+                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, createdAt, imageUrl, country));
+                                } else {
+                                    Log.w("LocationsRepository", "Skipping document due to missing required fields: " + document.getId());
+                                }
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                Log.e("LocationsRepository", "Error parsing location document: " + document.getId(), e);
                             }
                         }
                         callback.onSuccess(locations);
                     } else {
-                        callback.onFailure(task.getException());
+                        Exception e = task.getException();
+                        Log.e("LocationsRepository", "Error fetching locations", e);
+                        callback.onFailure(e);
                     }
                 });
     }
