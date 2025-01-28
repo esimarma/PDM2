@@ -1,9 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Pdm2projeto" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Cor principal da barra superior -->
+        <item name="colorPrimary">@color/app_green</item>
+        <!-- Cor da status bar (opcional) -->
+        <item name="colorPrimaryVariant">@color/app_green</item>
+        <!-- Cor do texto (para evitar baixo contraste) -->
+        <item name="android:textColorPrimary">@color/white</item>
+
+        <item name="colorSecondaryContainer">@color/app_green</item>
     </style>
 
-    <style name="Theme.Pdm2projeto" parent="Base.Theme.Pdm2projeto" />
+    <style name="Theme.Pdm2projeto" parent="Base.Theme.Pdm2projeto">
+        <!-- Cor principal da barra superior -->
+        <item name="colorPrimary">@color/app_green</item>
+        <!-- Cor da status bar (opcional) -->
+        <item name="colorPrimaryVariant">@color/app_green</item>
+        <!-- Cor do texto (para evitar baixo contraste) -->
+        <item name="android:textColorPrimary">@color/white</item>
+
+        <item name="colorSecondaryContainer">@color/app_green</item>
+    </style>
 </resources>

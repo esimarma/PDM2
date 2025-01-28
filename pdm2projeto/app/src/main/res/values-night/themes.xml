@@ -1,7 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Pdm2projeto" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Cor principal da barra superior -->
+        <item name="colorPrimary">#6200EE</item>
+        <!-- Cor da status bar (opcional) -->
+        <item name="colorPrimaryVariant">#3700B3</item>
+        <!-- Cor do texto (para evitar baixo contraste) -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+
+        <item name="colorSecondaryContainer">@color/app_green</item>
     </style>
 </resources>

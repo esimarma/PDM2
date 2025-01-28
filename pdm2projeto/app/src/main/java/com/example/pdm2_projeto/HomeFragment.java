@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pdm2_projeto.adapters.LocationAdapter;
@@ -65,13 +66,12 @@ public class HomeFragment extends Fragment {
 
         // Configurar RecyclerView
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         locationList = new ArrayList<>();
 
         // Configurar Adapter com clique nos cards
         locationAdapter = new LocationAdapter(getContext(), locationList, this::openMapFragment);
         recyclerView.setAdapter(locationAdapter);
-
 
     }
 
@@ -103,12 +103,12 @@ public class HomeFragment extends Fragment {
         mapFragment.setArguments(bundle);
 
         // Atualizar o item ativo da Bottom Navigation
-        requireActivity().findViewById(R.id.bottom_navigation).post(() -> {
+       /* requireActivity().findViewById(R.id.bottom_navigation).post(() -> {
             BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
             if (bottomNavigationView != null) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_map);
             }
-        });
+        });*/
 
         // Substituir o fragmento
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();

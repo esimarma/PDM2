@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -6,10 +7,9 @@
     android:elevation="4dp"
     android:layout_margin="8dp">
 
-    <!-- Imagem do Local -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         app:cardCornerRadius="8dp"
         android:layout_margin="5dp"
@@ -19,7 +19,7 @@
             android:id="@+id/location_image"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:scaleType="centerCrop" />
+            android:scaleType="center"/>
     </androidx.cardview.widget.CardView>
 
 
@@ -28,7 +28,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="4dp"
-        android:paddingStart="4dp">
+        android:paddingStart="4dp"
+        tools:ignore="RtlSymmetry">
 
         <TextView
             android:id="@+id/location_name"
