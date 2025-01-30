@@ -1,13 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Pdm2projeto" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Cor principal da barra superior -->
-        <item name="colorPrimary">#6200EE</item>
-        <!-- Cor da status bar (opcional) -->
-        <item name="colorPrimaryVariant">#3700B3</item>
-        <!-- Cor do texto (para evitar baixo contraste) -->
-        <item name="android:textColorPrimary">#FFFFFF</item>
+    <!-- Dark Mode Theme -->
+    <style name="Theme.Pdm2projeto" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Background and primary colors -->
+        <item name="colorPrimary">@color/app_primary</item>
+        <item name="colorPrimaryVariant">@color/app_primary</item>
+        <item name="colorSecondary">@color/app_secondary</item>
+        <item name="colorSecondaryVariant">@color/app_secondary</item>
 
-        <item name="colorSecondaryContainer">@color/app_green</item>
+        <!-- Background colors -->
+        <item name="android:windowBackground">@color/app_background</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 </resources>

@@ -17,7 +17,7 @@
         <!-- Cor da status bar (opcional) -->
         <item name="colorPrimaryVariant">@color/app_green</item>
         <!-- Cor do texto (para evitar baixo contraste) -->
-        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
 
         <item name="colorSecondaryContainer">@color/app_green</item>
     </style>

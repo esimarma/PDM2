@@ -32,6 +32,14 @@
     <string name="invalid_email">Invalid email address.</string>
     <string name="password_length">Password must be at least 6 characters.</string>
 
+    <string name="reset_email_hint">Enter your email</string>
+    <string name="reset_password_title">Reset Password</string>
+    <string name="reset_password_message">Enter your email to receive a reset link.</string>
+    <string name="enter_valid_email">Please enter a valid email.</string>
+    <string name="reset_email_sent">Password reset email sent successfully!</string>
+    <string name="reset_email_failed">Failed to send reset email: </string>
+    <string name="send">Send</string>
+
     <string name="your_location">Your Location</string>
     <string name="your_location_error">Failed to get your location.</string>
     <string name="permission_denied">Permission denied. Cannot access location.</string>

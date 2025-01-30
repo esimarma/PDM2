@@ -3,7 +3,7 @@
     <string name="app_name">PointView</string>
     <string name="home">Início</string>
     <string name="map">Mapa</string>
-    <string name="profile">Prefil</string>
+    <string name="profile">Perfil</string>
     <string name="language_option">Idioma</string>
     <string name="github_option">Repositório do GitHub</string>
     <string name="logout_option">Sair</string>
@@ -32,6 +32,14 @@
     <string name="login_failed">Erro ao iniciar sessão:</string>
     <string name="invalid_email">Email inválido.</string>
     <string name="password_length">A Palavra-pass tem de ter pelo menos 6 caracteres.</string>
+
+    <string name="reset_email_hint">Insira o seu email</string>
+    <string name="reset_password_title">Redefinir Palavra-passe</string>
+    <string name="reset_password_message">Digite o seu email para receber um link de redefinição.</string>
+    <string name="enter_valid_email">Digite um email válido!</string>
+    <string name="reset_email_sent">Email de redefinição enviado!</string>
+    <string name="reset_email_failed">Erro ao enviar email: </string>
+    <string name="send">Enviar</string>
 
     <string name="your_location">Estás Aqui!</string>
     <string name="your_location_error">Falha ao obter sua localização.</string>

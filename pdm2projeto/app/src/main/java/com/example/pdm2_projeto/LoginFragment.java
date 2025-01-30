@@ -1,5 +1,6 @@
 package com.example.pdm2_projeto;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Patterns;
@@ -48,6 +49,7 @@ public class LoginFragment extends Fragment {
         CheckBox showPasswordCheckbox = view.findViewById(R.id.show_password);
         ImageView backButton = view.findViewById(R.id.back_button);
         TextView registerButton = view.findViewById(R.id.button_register);
+        TextView forgotPasswordText = view.findViewById(R.id.forgot_password);
 
         // Hide the top header for the LoginFragment
         hideTopHeader();
@@ -63,6 +65,8 @@ public class LoginFragment extends Fragment {
 
         // Register button opens the RegisterFragment
         configureRegisterButton(registerButton);
+
+        forgotPasswordText.setOnClickListener(v -> showPasswordResetDialog());
 
         return view;
     }
@@ -121,6 +125,39 @@ public class LoginFragment extends Fragment {
                     .commit();
         });
     }
+
+    private void showPasswordResetDialog() {
+        EditText resetEmail = new EditText(requireContext());
+        resetEmail.setHint(getString(R.string.reset_email_hint));
+
+        AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(requireContext());
+        passwordResetDialog.setTitle(getString(R.string.reset_password_title));
+        passwordResetDialog.setMessage(getString(R.string.reset_password_message));
+        passwordResetDialog.setView(resetEmail);
+
+        passwordResetDialog.setPositiveButton(getString(R.string.send), (dialog, which) -> {
+            String email = resetEmail.getText().toString().trim();
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(requireContext(), getString(R.string.enter_valid_email), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(requireContext(), getString(R.string.reset_email_sent), Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, new LoginFragment())
+                                .commit();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(requireContext(), getString(R.string.reset_email_failed) + e.getMessage(), Toast.LENGTH_SHORT).show());
+        });
+
+        passwordResetDialog.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+        passwordResetDialog.show();
+    }
+
 
     private boolean validateInputs(String email, String password) {
         if (email.isEmpty()) {
