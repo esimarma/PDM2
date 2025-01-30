@@ -37,7 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/not_signed_in"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textColor="?attr/colorOnBackground"/>
 
         <!-- Login Button -->
         <Button
@@ -45,7 +46,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/app_gray"
+            android:textColor="@color/white_gray_text"
+            android:backgroundTint="?attr/colorSecondaryContainer"
             android:text="@string/login" />
 
         <!-- "Ainda não tem conta?" Text -->
@@ -55,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/dont_have_account"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="14sp" />
 
         <!-- "Criar conta" Text Button -->
@@ -65,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="@string/create_account"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/colorOnBackground"
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>

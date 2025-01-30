@@ -42,6 +42,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LocationsRepository locationRepository;
     private TextView headerTitle;
     private final HashMap<Marker, LocationInfo> markerData = new HashMap<>();
+    View headerLogo;
 
     static class LocationInfo {
         String title;
@@ -77,10 +78,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
         requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
 
-        headerTitle = requireActivity().findViewById(R.id.header_title);
-        if (headerTitle != null) {
-            headerTitle.setText(getString(R.string.map));
-        }
+        updateHeader();
 
         ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
         if (settingsButton != null) {
@@ -91,6 +89,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         .addToBackStack(null)
                         .commit();
             });
+        }
+    }
+
+    private void updateHeader() {
+        headerTitle = requireActivity().findViewById(R.id.header_title);
+        if (headerTitle != null) {
+            headerTitle.setText(getString(R.string.map));
+        }
+        View headerLogo = requireActivity().findViewById(R.id.app_icon);
+        if (headerLogo != null) {
+            headerLogo.setVisibility(View.VISIBLE);
         }
     }
 

@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class ProfileFragment extends Fragment {
 
-    private View loggedOutContainer, loggedInContainer;
+    private View loggedOutContainer, loggedInContainer, headerLogo;
     private TextView welcomeText, headerTitle;
     private UsersRepository usersRepository;
 
@@ -54,7 +54,7 @@ public class ProfileFragment extends Fragment {
         setNavigationAndHeaderVisibility(View.VISIBLE);
 
         // Update the header title
-        updateHeaderTitle();
+        updateHeader();
 
         // Set up navigation for settings button
         usersRepository = new UsersRepository();
@@ -74,10 +74,14 @@ public class ProfileFragment extends Fragment {
     /**
      * Updates the header title to display "Profile".
      */
-    private void updateHeaderTitle() {
+    private void updateHeader() {
         headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
             headerTitle.setText(getString(R.string.profile));
+        }
+        headerLogo = requireActivity().findViewById(R.id.app_icon);
+        if (headerLogo != null) {
+            headerLogo.setVisibility(View.GONE);
         }
     }
 

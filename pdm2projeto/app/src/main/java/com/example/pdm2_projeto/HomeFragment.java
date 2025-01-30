@@ -28,6 +28,8 @@ public class HomeFragment extends Fragment {
     private List<Location> locationList;
     private LocationsRepository locationsRepository;
     private SearchView searchView;
+    TextView headerTitle;
+    View headerLogo;
 
     @Nullable
     @Override
@@ -44,10 +46,7 @@ public class HomeFragment extends Fragment {
         requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
 
         // Atualizar o título do Header
-        TextView headerTitle = requireActivity().findViewById(R.id.header_title);
-        if (headerTitle != null) {
-            headerTitle.setText(getString(R.string.home));
-        }
+        updateHeader();
 
         // Configurar botão de configurações para abrir o SettingsFragment
         ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
@@ -77,6 +76,17 @@ public class HomeFragment extends Fragment {
 
         // Configurar o SearchView para pesquisar localizações
         setupSearchView();
+    }
+
+    private void updateHeader() {
+        headerTitle = requireActivity().findViewById(R.id.header_title);
+        if (headerTitle != null) {
+            headerTitle.setText(getString(R.string.home));
+        }
+        headerLogo = requireActivity().findViewById(R.id.app_icon);
+        if (headerLogo != null) {
+            headerLogo.setVisibility(View.VISIBLE);
+        }
     }
 
     private void loadLocations() {
