@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filtrar categorias"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="8dp"/>
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_categories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
+        android:padding="8dp"/>
+
+    <Button
+        android:id="@+id/btn_apply_filters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aplicar Filtros"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white_gray_text"
+        android:backgroundTint="?attr/colorSecondaryContainer"/>
+</LinearLayout>

@@ -103,6 +103,37 @@ public class LocationsRepository {
         });
     }
 
+    public void getLocationsByCategory(String categoryId, LocationCallback callback) {
+        locationCollection.whereEqualTo("category_id", categoryId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<Location> locations = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                String id = document.getId();
+                                String name = document.getString("name");
+                                String description = document.getString("description");
+                                String address = document.getString("address");
+                                String categoryIdDb = document.getString("category_id");
+                                String imageUrl = document.getString("imageUrl");
+                                String country = document.getString("country");
+                                double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
+                                double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
+
+                                if (name != null && description != null) {
+                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryIdDb, imageUrl, country));
+                                }
+                            } catch (Exception e) {
+                                Log.e("LocationsRepository", "Erro ao processar localizações", e);
+                            }
+                        }
+                        callback.onSuccess(locations);
+                    } else {
+                        callback.onFailure(task.getException());
+                    }
+                });
+    }
+
     /**
      * Fetches a single Location by its ID from the Firestore database.
      *

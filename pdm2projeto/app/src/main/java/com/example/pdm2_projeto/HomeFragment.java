@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,9 +18,6 @@ import com.example.pdm2_projeto.adapters.LocationAdapter;
 import com.example.pdm2_projeto.models.Location;
 import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import android.widget.SearchView;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +40,11 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Mostrar a Bottom Navigation e o Header
         requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
         requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
 
-        // Atualizar o título do Header
         updateHeader();
 
-        // Configurar botão de configurações para abrir o SettingsFragment
         ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
         if (settingsButton != null) {
             settingsButton.setOnClickListener(v -> {
@@ -60,7 +56,6 @@ public class HomeFragment extends Fragment {
             });
         }
 
-        // Configuração do SearchView e RecyclerView
         searchView = view.findViewById(R.id.search_view);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -71,11 +66,21 @@ public class HomeFragment extends Fragment {
 
         locationsRepository = new LocationsRepository();
 
-        // Carregar todas as localizações ao iniciar
         loadLocations();
-
-        // Configurar o SearchView para pesquisar localizações
         setupSearchView();
+
+        ImageButton btnFilter = view.findViewById(R.id.btn_filter);
+        btnFilter.setOnClickListener(v -> {
+            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+            bottomSheet.setFilterListener(categoryId -> {
+                if (categoryId.isEmpty()) {
+                    loadLocations(); // Se nenhum filtro for aplicado, carregar todas as localizações
+                } else {
+                    loadFilteredLocations(categoryId);
+                }
+            });
+            bottomSheet.show(getChildFragmentManager(), "FilterBottomSheet");
+        });
     }
 
     private void updateHeader() {
@@ -105,6 +110,22 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void loadFilteredLocations(String categoryId) {
+        locationsRepository.getLocationsByCategory(categoryId, new LocationsRepository.LocationCallback() {
+            @Override
+            public void onSuccess(List<Location> locations) {
+                locationList.clear();
+                locationList.addAll(locations);
+                locationAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -116,7 +137,7 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    loadLocations(); // Se a pesquisa for apagada, recarrega todas as localizações
+                    loadLocations();
                 } else {
                     searchLocations(newText);
                 }
@@ -142,7 +163,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void openMapFragment(Location location) {
-        // Abrir MapFragment passando os detalhes da localização
         Fragment mapFragment = new MapFragment();
         Bundle bundle = new Bundle();
         bundle.putString("locationName", location.getName());
@@ -152,13 +172,11 @@ public class HomeFragment extends Fragment {
         bundle.putDouble("longitude", location.getLongitude());
         mapFragment.setArguments(bundle);
 
-        // Atualizar o item ativo na Bottom Navigation ao mudar para o MapFragment
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_map);
         }
 
-        // Substituir o fragmento
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, mapFragment);
         transaction.addToBackStack(null);
