@@ -16,6 +16,7 @@
     <string name="favorites">Favoritos</string>
     <string name="hello">Olá</string>
     <string name="user">Utilizador</string>
+    <string name="search">Pesquisar</string>
 
     <string name="welcome">Bem-Vindo</string>
     <string name="not_signed_in">Ainda não tem sessão iniciada</string>

@@ -44,7 +44,6 @@ public class LocationsRepository {
                                 String description = document.getString("description");
                                 String address = document.getString("address");
                                 String categoryId = document.getString("categoryId");
-                                String createdAt = document.getString("createdAt");
                                 String imageUrl = document.getString("imageUrl");
                                 String country = document.getString("country");
 
@@ -54,7 +53,7 @@ public class LocationsRepository {
 
                                 // Verifica campos obrigatórios antes de adicionar à lista
                                 if (name != null && description != null) {
-                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, createdAt, imageUrl, country));
+                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
                                 } else {
                                     Log.w("LocationsRepository", "Skipping document due to missing required fields: " + document.getId());
                                 }
@@ -69,6 +68,39 @@ public class LocationsRepository {
                         callback.onFailure(e);
                     }
                 });
+    }
+
+    public void getLocationsByName(String query, LocationCallback callback) {
+        locationCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<Location> filteredLocations = new ArrayList<>();
+                String lowerCaseQuery = query.toLowerCase(); // Converte a pesquisa para minúsculas
+
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    try {
+                        String name = document.getString("name");
+                        if (name != null && name.toLowerCase().contains(lowerCaseQuery)) { // Filtra ignorando maiúsculas
+                            String id = document.getId();
+                            String description = document.getString("description");
+                            String address = document.getString("address");
+                            String categoryId = document.getString("categoryId");
+                            String imageUrl = document.getString("imageUrl");
+                            String country = document.getString("country");
+
+                            double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
+                            double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
+
+                            filteredLocations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
+                        }
+                    } catch (Exception e) {
+                        Log.e("LocationsRepository", "Erro ao processar documento: " + document.getId(), e);
+                    }
+                }
+                callback.onSuccess(filteredLocations);
+            } else {
+                callback.onFailure(task.getException());
+            }
+        });
     }
 
     /**

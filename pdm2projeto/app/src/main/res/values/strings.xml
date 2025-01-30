@@ -15,6 +15,7 @@
     <string name="favorites">Favorites</string>
     <string name="hello">Hello</string>
     <string name="user">User</string>
+    <string name="search">Search</string>
 
     <string name="welcome">Welcome</string>
     <string name="not_signed_in">Not signed in yet</string>

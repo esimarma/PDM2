@@ -13,5 +13,11 @@
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <item name="colorSecondaryContainer">@color/app_green</item>
+
+        <!-- Home Page -->
+        <item name="colorOnBackground">@color/app_primary_text</item>
+        <item name="colorOnSurface">@color/app_secondary_text</item>
     </style>
 </resources>

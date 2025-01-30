@@ -11,14 +11,13 @@ public class Location {
     private double latitude;
     private double longitude;
     private String categoryId;
-    private String createdAt;
     private String imageUrl;
     private String country;
 
     public Location() {}
 
     public Location(String id, String name, String description, String address, double latitude,
-                    double longitude, String categoryId, String createdAt, String imageUrl, String country) {
+                    double longitude, String categoryId, String imageUrl, String country) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,7 +25,6 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
         this.categoryId = categoryId;
-        this.createdAt = createdAt;
         this.imageUrl = imageUrl;
         this.country = country;
     }
@@ -85,14 +83,6 @@ public class Location {
 
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getImageUrl() {
