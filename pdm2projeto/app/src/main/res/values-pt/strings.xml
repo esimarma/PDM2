@@ -62,4 +62,15 @@
     <string name="account_delete_failed">Erro ao apagar a conta.</string>
     <string name="reauth_failed">Falha na reautenticação:</string>
     <string name="enter_valid_password">Por favor, insira uma palavra-passe válida.</string>
+    <string name="profile_picture_removed">Foto removida com sucesso!</string>
+    <string name="profile_picture_remove_failed">Erro ao remover foto:</string>
+
+    <string name="remove_profile_picture">Apagar Foto de Perfil</string>
+    <string name="remove_profile_picture_message">Tem certeza de que deseja apagar sua foto de perfil?</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="remove_current_picture">Remover foto atual</string>
+    <string name="upload_picture">Carregar foto</string>
+    <string name="change_profile_picture">Alterar foto de perfil</string>
+
 </resources>

@@ -13,4 +13,5 @@
     <color name="app_nav_bar">#080B08</color>
     <color name="icon_color">@color/app_primary_text</color>
     <color name="white_gray_text">@color/app_primary_text</color>
+    <color name="red">#C00808</color>
 </resources>

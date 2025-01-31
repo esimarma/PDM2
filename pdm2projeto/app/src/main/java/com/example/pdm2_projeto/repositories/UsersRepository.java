@@ -89,6 +89,27 @@ public class UsersRepository {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null)) // If successful, triggers callback
                 .addOnFailureListener(callback::onFailure); // If failed, triggers callback with an error
     }
+    /**
+     * Updates the profile picture URL of the current user in Firestore.
+     *
+     * @param profilePictureUrl The new profile picture URL (null to remove the picture).
+     * @param callback Callback to indicate the success or failure of the operation.
+     */
+    public void updateProfilePicture(String profilePictureUrl, FirestoreCallback callback) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            callback.onFailure(new Exception("No authenticated user."));
+            return;
+        }
 
+        String userId = currentUser.getUid();
+
+        // Updates only the profilePictureUrl field in Firestore
+        db.collection("users")
+                .document(userId)
+                .update("profilePictureUrl", profilePictureUrl)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
 
 }

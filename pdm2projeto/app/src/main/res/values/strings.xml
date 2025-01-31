@@ -47,7 +47,7 @@
     <string name="permission_denied">Permission denied. Cannot access location.</string>
     <string name="failed_to_fetch_locations">"Failed to fetch locations from Database."</string>
 
-    <string name="change_password">Change Password</string>
+    <string name="change_password">Change password</string>
     <string name="delete_account">Delete Account</string>
     <string name="delete_account_warning">All data will be deleted</string>
     <string name="account_creation_date">Account created since: </string>
@@ -62,6 +62,15 @@
     <string name="account_delete_failed">Error deleting account.</string>
     <string name="reauth_failed">Reauthentication failed:</string>
     <string name="enter_valid_password">Please enter a valid password.</string>
+    <string name="profile_picture_removed">Profile picture removed successfully!</string>
+    <string name="profile_picture_remove_failed">Error removing profile picture:</string>
 
+    <string name="remove_profile_picture">Delete Profile Photo</string>
+    <string name="remove_profile_picture_message">Are you sure you want to remove your profile photo?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remove_current_picture">Remove current photo</string>
+    <string name="upload_picture">Upload photo</string>
+    <string name="change_profile_picture">Change Profile Photo</string>
 
 </resources>

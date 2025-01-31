@@ -4,6 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="app_green">#0D5A2D</color>
     <color name="app_gray">#3F3F3F</color>
+    <color name="red">#C00808</color>
+
     <color name="app_primary_text">@color/black</color>
     <color name="app_secondary_text">@color/app_gray</color>
 
@@ -11,7 +13,7 @@
     <color name="icon_color">@color/app_gray</color>
     <color name="white_gray_text">@color/white</color>
 
-    <color name="app_background">#121212</color>
+    <color name="app_background">@color/white</color>
     <color name="app_primary">#000000</color>
     <color name="app_secondary">#1E1E1E</color>
     <color name="text_primary">#FFFFFF</color>

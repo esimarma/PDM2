@@ -1,130 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:fillViewport="true"> <!-- Ensures content fills the screen -->
+    android:padding="16dp">
 
-    <LinearLayout
+    <!-- Back Button -->
+    <ImageView
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_back"
+        android:contentDescription="@string/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:tint="?attr/colorOnBackground" />
+
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/login_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/account_option"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <!-- Profile Picture -->
+    <ImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="20dp"
+        android:contentDescription="Profile Picture"
+        android:src="@drawable/ic_profile"
+        app:tint="@color/icon_color"
+        app:layout_constraintTop_toBottomOf="@id/login_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <!-- User Details Section -->
+    <TextView
+        android:id="@+id/textView_name"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_gravity="bottom">
+        android:layout_height="wrap_content"
+        android:text="@string/name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toBottomOf="@id/profile_picture"
+        android:layout_marginTop="30dp" />
 
-        <!-- Profile Image Section -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp">
 
-            <ImageView
-                android:id="@+id/profile_picture"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_app"
-                android:contentDescription="Profile Logo"
-                android:layout_gravity="center_horizontal" />
+    <EditText
+        android:id="@+id/editText_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/name"
+        android:text="@string/name"
+        android:inputType="text"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_name" />
 
-            <ImageView
-                android:id="@+id/edit_profile_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_edit"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="5dp"
-                android:elevation="5dp" />
-        </FrameLayout>
+    <TextView
+        android:id="@+id/textView_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/email"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editText_name"
+        tools:layout_editor_absoluteX="16dp" />
 
-        <!-- User Details Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Nome"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="30dp" />
 
-        <EditText
-            android:id="@+id/editText_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="User Name"
-            android:padding="10dp"
-            android:minHeight="48dp" />
+    <EditText
+        android:id="@+id/editText_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/email"
+        android:text="@string/email"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_email" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Email"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="10dp" />
+    <!-- Change Password -->
+    <TextView
+        android:id="@+id/change_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/change_password"
+        android:textColor="?attr/colorOnBackground"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editText_email" />
 
-        <EditText
-            android:id="@+id/editText_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="example@gmail.com"
-            android:padding="10dp"
-            android:focusable="false"
-            android:clickable="false"
-            android:minHeight="48dp" />
+    <!-- Delete Account Button -->
+    <Button
+        android:id="@+id/delete_account_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="@string/delete_account"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/delete_account_warning"
+        android:layout_marginBottom="10dp" />
 
-        <!-- Change Password -->
-        <TextView
-            android:id="@+id/change_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mudar a palavra-passe"
-            android:textColor="@color/app_primary"
-            android:layout_marginTop="15dp"
-            android:textStyle="bold" />
+    <!-- Confirmation text below delete button -->
+    <TextView
+        android:id="@+id/delete_account_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_account_message"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintBottom_toTopOf="@id/account_creation_date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Space Filler to Push Content to Top -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+    <!-- Account Creation Date -->
+    <TextView
+        android:id="@+id/account_creation_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_creation_date"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp" />
 
-        <!-- Delete Account Button -->
-        <Button
-            android:id="@+id/delete_account_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:backgroundTint="#C00808"
-            android:text="Apagar conta"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="10dp" />
-
-        <!-- Confirmation text below delete button -->
-        <TextView
-            android:id="@+id/delete_account_warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Todos os seus dados serão apagados"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp" />
-
-        <!-- Account Creation Date (Stuck at Bottom) -->
-        <TextView
-            android:id="@+id/account_creation_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Conta criada desde: #data da criação"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
