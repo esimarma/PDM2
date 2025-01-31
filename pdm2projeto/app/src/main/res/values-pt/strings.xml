@@ -73,4 +73,11 @@
     <string name="upload_picture">Carregar foto</string>
     <string name="change_profile_picture">Alterar foto de perfil</string>
 
+    <string name="choose_picture">Escolher foto de perfil</string>
+    <string name="take_photo">Tirar Foto</string>
+    <string name="choose_from_gallery">Escolher da galeria</string>
+
+    <string name="upload_success">Sucesso ao carregar a foto de perfil!</string>
+    <string name="upload_failed">Erro ao carregar a foto de perfil!</string>
+
 </resources>

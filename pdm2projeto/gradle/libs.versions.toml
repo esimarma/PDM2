@@ -12,6 +12,7 @@ firebaseAuth = "23.1.0"
 materialVersion = "1.11.0"
 playServicesMaps = "19.0.0"
 playServicesLocation = "21.3.0"
+firebaseStorage = "21.0.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +27,7 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 material-v1110 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

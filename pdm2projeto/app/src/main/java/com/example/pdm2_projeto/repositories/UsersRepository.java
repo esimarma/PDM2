@@ -1,22 +1,27 @@
 package com.example.pdm2_projeto.repositories;
 
+import android.net.Uri;
+
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 /**
  * Repository class for managing user-related operations.
  */
 public class UsersRepository {
     private final FirebaseAuth auth;
     private final FirebaseFirestore db;
+    private final FirebaseStorage storage;
 
     // Initializes Firebase Auth and Firestore
     public UsersRepository() {
         this.auth = FirebaseAuth.getInstance();
         this.db = FirebaseFirestore.getInstance();
+        this.storage = FirebaseStorage.getInstance();
     }
 
     /**
@@ -89,6 +94,36 @@ public class UsersRepository {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null)) // If successful, triggers callback
                 .addOnFailureListener(callback::onFailure); // If failed, triggers callback with an error
     }
+
+    /**
+     * Uploads a profile picture to Firebase Storage and updates the Firestore document.
+     *
+     * @param imageUri The Uri of the image to upload.
+     * @param callback Callback to indicate success or failure.
+     */
+    public void uploadProfilePicture(Uri imageUri, FirestoreCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            callback.onFailure(new Exception("Usuário não autenticado."));
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_pictures/" + userId + ".jpg");
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String downloadUrl = uri.toString();
+                            FirebaseFirestore.getInstance().collection("users")
+                                    .document(userId)
+                                    .update("profilePictureUrl", downloadUrl)
+                                    .addOnSuccessListener(aVoid -> callback.onSuccess(downloadUrl))
+                                    .addOnFailureListener(callback::onFailure);
+                        }))
+                .addOnFailureListener(callback::onFailure);
+    }
+
     /**
      * Updates the profile picture URL of the current user in Firestore.
      *
@@ -104,12 +139,10 @@ public class UsersRepository {
 
         String userId = currentUser.getUid();
 
-        // Updates only the profilePictureUrl field in Firestore
         db.collection("users")
                 .document(userId)
                 .update("profilePictureUrl", profilePictureUrl)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }
-
 }

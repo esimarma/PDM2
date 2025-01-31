@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "269676480774",
-    "project_id": "pointview-64c74",
-    "storage_bucket": "pointview-64c74.firebasestorage.app"
+    "project_number": "461276801213",
+    "project_id": "pdm2-56672",
+    "storage_bucket": "pdm2-56672.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:269676480774:android:7f2252dff9f08d05e4b687",
+        "mobilesdk_app_id": "1:461276801213:android:7f7b478e24f978865cafd4",
         "android_client_info": {
           "package_name": "com.example.pdm2_projeto"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA1fHvkDUpxjYkwBPwz9cRFXmXqKrXMnvs"
+          "current_key": "AIzaSyBQ_Lbl0dNQ-ZiFAVKADiurGH0RtcrbBvo"
         }
       ],
       "services": {

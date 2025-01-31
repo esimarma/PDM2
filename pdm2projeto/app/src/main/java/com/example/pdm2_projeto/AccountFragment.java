@@ -1,8 +1,15 @@
 package com.example.pdm2_projeto;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Patterns;
 import android.view.Gravity;
@@ -19,9 +26,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
@@ -36,12 +45,16 @@ import java.util.Locale;
 
 public class AccountFragment extends Fragment {
 
-    private ImageView profilePicture, editProfilePicture;
+    private ImageView profilePicture;
     private EditText editTextName, editTextEmail;
     private TextView changePassword, accountCreationDate, deleteAccountWarning;
     private Button deleteAccountButton;
     private UsersRepository usersRepository;
     private FirebaseAuth auth;
+    private static final int REQUEST_PICK_IMAGE = 100;
+    private static final int REQUEST_IMAGE_CAPTURE = 101;
+    private static final int REQUEST_PERMISSIONS = 100;
+    private Uri photoUri;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -130,12 +143,18 @@ public class AccountFragment extends Fragment {
                     if (editTextName != null) editTextName.setText(user.getName());
                     if (editTextEmail != null) editTextEmail.setText(currentUser.getEmail());
 
-                    // Carregar imagem de perfil
-                    if (user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()) {
-                        Glide.with(requireContext())
-                                .load(user.getProfilePictureUrl())
-                                .into(profilePicture);
+                    if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                        profilePicture.setColorFilter(ContextCompat.getColor(requireContext(), R.color.icon_color), android.graphics.PorterDuff.Mode.SRC_IN);
+                        profilePicture.setImageResource(R.drawable.ic_profile);
                     }
+                    // Carregar imagem de perfil
+                    Glide.with(requireContext())
+                            .load(user.getProfilePictureUrl())
+                            .placeholder(R.drawable.ic_profile)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)  // Evita usar cache da memória
+                            .error(R.drawable.ic_profile)
+                            .into(profilePicture);
 
                     // Obter e formatar a data de criação da conta
                     long creationTimestamp = currentUser.getMetadata().getCreationTimestamp();
@@ -282,8 +301,115 @@ public class AccountFragment extends Fragment {
     }
 
     private void openImagePicker() {
-        Toast.makeText(getContext(), "Abrir galeria (ainda não implementado)", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.choose_picture));
+
+        String[] options = {
+                getString(R.string.take_photo),
+                getString(R.string.choose_from_gallery),
+                getString(R.string.cancel)
+        };
+
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    openCamera();
+                    break;
+                case 1:
+                    openGallery();
+                    break;
+                case 2:
+                    dialog.dismiss();
+                    break;
+            }
+        });
+
+        // Criar e mostrar o AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Definir fundo arredondado após o show()
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(900, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_rounded_corners);
+        }
     }
+
+    private void openCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS);
+        } else {
+            takeFoto();
+        }
+    }
+
+    private void takeFoto() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "Nova Foto");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Imagem capturada pela câmera");
+        photoUri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        if (photoUri != null) { // Verifica se a URI foi criada corretamente
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        } else {
+            Toast.makeText(requireContext(), "Erro ao capturar a foto.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhotoIntent, REQUEST_PICK_IMAGE);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            Uri selectedImageUri = data.getData();
+
+            if (selectedImageUri != null) {
+                usersRepository.uploadProfilePicture(selectedImageUri, new FirestoreCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        String downloadUrl = (String) result; // A URL da imagem salva no Firebase
+                        if (profilePicture != null) {
+                            Glide.with(requireContext())
+                                    .load(downloadUrl)
+                                    .placeholder(R.drawable.ic_profile)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(profilePicture);
+                        }
+                        Toast.makeText(requireContext(), "Imagem de perfil atualizada!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Erro ao atualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(requireContext(), "Erro ao obter a imagem.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takeFoto();
+            } else {
+                Toast.makeText(requireContext(), "Permissões necessárias não concedidas.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     private void showRemoveProfilePictureDialog() {
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
