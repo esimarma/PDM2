@@ -72,4 +72,23 @@ public class UsersRepository {
     public FirebaseUser getAuthenticatedUser() {
         return auth.getCurrentUser();
     }
+
+
+
+    /**
+     * Deletes a user document from Firestore.
+     *
+     * @param userId   The unique ID of the user to be deleted.
+     * @param callback Callback to indicate the success or failure of the operation.
+     */
+    public void deleteUser(String userId, FirestoreCallback callback) {
+        FirebaseFirestore.getInstance()
+                .collection("users") // Accesses the "users" collection in Firestore
+                .document(userId) // Specifies the document to delete (by user ID)
+                .delete() // Deletes the document from Firestore
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null)) // If successful, triggers callback
+                .addOnFailureListener(callback::onFailure); // If failed, triggers callback with an error
+    }
+
+
 }

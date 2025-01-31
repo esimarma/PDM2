@@ -94,6 +94,7 @@ public class SettingsFragment extends Fragment {
     private List<String> createSettingsOptions() {
         List<String> settingsOptions = new ArrayList<>(Arrays.asList(
                 getString(R.string.language_option),
+                getString(R.string.account_option), // Add "Conta" (Account)
                 getString(R.string.github_option)
         ));
 
@@ -111,7 +112,9 @@ public class SettingsFragment extends Fragment {
      * Handles the click event for a specific setting option.
      */
     private void handleSettingClick(String option) {
-        if (option.equals(getString(R.string.language_option))) {
+        if (option.equals(getString(R.string.account_option))) {
+            openAccountScreen(); // Navigate to AccountFragment
+        } else if (option.equals(getString(R.string.language_option))) {
             showLanguageDialog();
         } else if (option.equals(getString(R.string.github_option))) {
             openGitHubRepository();
@@ -119,6 +122,7 @@ public class SettingsFragment extends Fragment {
             logoutUser();
         }
     }
+
 
     /**
      * Displays the language selection dialog.
@@ -205,6 +209,18 @@ public class SettingsFragment extends Fragment {
             menu.findItem(R.id.nav_profile).setTitle(getString(R.string.profile));
         }
     }
+
+    /**
+     * Opens the AccountFragment to edit account details.
+     */
+    private void openAccountScreen() {
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new AccountFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     /**
      * Opens the GitHub repository link in a browser.

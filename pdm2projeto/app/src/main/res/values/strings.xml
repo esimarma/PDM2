@@ -5,6 +5,7 @@
     <string name="profile">Profile</string>
     <string name="language_option">Language</string>
     <string name="github_option">GitHub Repository</string>
+    <string name="account_option">Account</string>
     <string name="logout_option">Logout</string>
     <string name="language_dialog_title">Select Language</string>
     <string name="language_portuguese">Portuguese</string>
@@ -45,5 +46,22 @@
     <string name="your_location_error">Failed to get your location.</string>
     <string name="permission_denied">Permission denied. Cannot access location.</string>
     <string name="failed_to_fetch_locations">"Failed to fetch locations from Database."</string>
+
+    <string name="change_password">Change Password</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_warning">All data will be deleted</string>
+    <string name="account_creation_date">Account created since: </string>
+
+
+    <!-- Account Deletion Confirmation -->
+    <string name="delete_account_title">Are you sure you want to delete your account?</string>
+    <string name="delete_account_message">This action is irreversible. Enter your password to confirm.</string>
+    <string name="enter_password">Enter your password</string>
+    <string name="confirm">Confirm</string>
+    <string name="account_deleted">Account deleted successfully!</string>
+    <string name="account_delete_failed">Error deleting account.</string>
+    <string name="reauth_failed">Reauthentication failed:</string>
+    <string name="enter_valid_password">Please enter a valid password.</string>
+
 
 </resources>

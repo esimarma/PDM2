@@ -61,6 +61,10 @@ public class ProfileFragment extends Fragment {
 
         // Set up navigation for login and register actions
         setupAuthenticationNavigation(view);
+
+        // Find the profile logo and add click listener
+        ImageView profileLogo = view.findViewById(R.id.profile_logo);
+        profileLogo.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
     }
 
     /**
@@ -143,6 +147,10 @@ public class ProfileFragment extends Fragment {
                 User user = (User) result;
                 String name = user.getName();
                 welcomeText.setText(getString(R.string.hello) + " " + (name != null ? name : getString(R.string.user)));
+
+                // Set up click listener for profile image when logged in
+                ImageView profileImage = requireView().findViewById(R.id.profile_logo);
+                profileImage.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
             }
 
             @Override
