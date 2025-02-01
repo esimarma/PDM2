@@ -40,18 +40,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationsRepository locationRepository;
-    private TextView headerTitle;
     private final HashMap<Marker, LocationInfo> markerData = new HashMap<>();
-    View headerLogo;
 
     static class LocationInfo {
         String title;
-        String description;
+        String address;
         String imageUrl;
 
-        LocationInfo(String title, String description, String imageUrl) {
+        LocationInfo(String title, String address, String imageUrl) {
             this.title = title;
-            this.description = description;
+            this.address = address;
             this.imageUrl = imageUrl;
         }
     }
@@ -92,14 +90,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Updates the header title to display "Profile".
+     */
     private void updateHeader() {
-        headerTitle = requireActivity().findViewById(R.id.header_title);
+        TextView headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
-            headerTitle.setText(getString(R.string.map));
+            headerTitle.setText(getString(R.string.profile));
         }
         View headerLogo = requireActivity().findViewById(R.id.app_icon);
         if (headerLogo != null) {
-            headerLogo.setVisibility(View.VISIBLE);
+            headerLogo.setVisibility(View.GONE);
         }
     }
 
@@ -117,28 +118,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
 
         // Verifica se há argumentos (localização clicada)
-        Bundle args = getArguments();
-        if (args != null) {
-            String locationName = args.getString("locationName");
-            String locationDescription = args.getString("locationDescription");
-            String imageUrl = args.getString("imageUrl");
-            double latitude = args.getDouble("latitude");
-            double longitude = args.getDouble("longitude");
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String locationName = bundle.getString("locationName");
+            String address = bundle.getString("address");
+            String imageUrl = bundle.getString("imageUrl");
+            double latitude = bundle.getDouble("latitude");
+            double longitude = bundle.getDouble("longitude");
 
             LatLng locationLatLng = new LatLng(latitude, longitude);
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(locationLatLng)
                     .title(locationName)
-                    .snippet(locationDescription)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    .snippet(address)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 
             if (marker != null) {
-                markerData.put(marker, new LocationInfo(locationName, locationDescription, imageUrl)); //Ensure markerData contains the clicked marker
-                marker.showInfoWindow();
+                markerData.put(marker, new LocationInfo(locationName, address, imageUrl)); //Ensure markerData contains the clicked marker
             }
 
             // Move a câmera para a localização especificada
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 15));
+            marker.showInfoWindow();
         } else {
             // Caso contrário, usa a localização do utilizador
             getUserLocation();
@@ -248,8 +249,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             TextView title = view.findViewById(R.id.info_window_title);
             title.setText(locationInfo.title);
 
-            TextView description = view.findViewById(R.id.info_window_description);
-            description.setText(locationInfo.description);
+            TextView description = view.findViewById(R.id.location_description);
+            description.setText(locationInfo.address);
 
             ImageView image = view.findViewById(R.id.info_window_image);
             Glide.with(getContext()).load(locationInfo.imageUrl).into(image);

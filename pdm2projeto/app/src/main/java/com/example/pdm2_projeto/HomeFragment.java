@@ -1,22 +1,21 @@
 package com.example.pdm2_projeto;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pdm2_projeto.adapters.LocationAdapter;
 import com.example.pdm2_projeto.models.Location;
+import com.example.pdm2_projeto.repositories.FavoritesRepository;
 import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
@@ -62,27 +61,13 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         locationList = new ArrayList<>();
-        locationAdapter = new LocationAdapter(getContext(), locationList, this::openMapFragment);
+        locationAdapter = new LocationAdapter(getContext(), locationList, this::openDetailFragment);
         recyclerView.setAdapter(locationAdapter);
 
         locationsRepository = new LocationsRepository();
 
         loadLocations();
         setupSearchView();
-
-        ImageButton btnFilter = view.findViewById(R.id.btn_filter);
-        btnFilter.setOnClickListener(v -> {
-            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
-            bottomSheet.setFilterListener(categoryId -> {
-                if (categoryId.isEmpty()) {
-                    loadLocations();
-                } else {
-                    loadFilteredLocations(categoryId);
-                }
-            });
-            bottomSheet.show(getChildFragmentManager(), "FilterBottomSheet");
-
-        });
     }
 
     private void updateHeader() {
@@ -112,22 +97,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void loadFilteredLocations(String categoryId) {
-        locationsRepository.getLocationsByCategory(categoryId, new LocationsRepository.LocationCallback() {
-            @Override
-            public void onSuccess(List<Location> locations) {
-                locationList.clear();
-                locationList.addAll(locations);
-                locationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -139,48 +108,36 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    locationAdapter.updateList(locationList); // Restore full list when search is empty
+                    locationAdapter.updateList(locationList);
                 } else {
-                    searchLocations(newText); // Perform search
+                    searchLocations(newText);
                 }
                 return true;
             }
         });
     }
+
     private void searchLocations(String query) {
         List<Location> filteredResults = new ArrayList<>();
-
-        // Apply search to the currently displayed list (filtered or unfiltered)
         for (Location location : locationList) {
             if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
                     location.getDescription().toLowerCase().contains(query.toLowerCase())) {
                 filteredResults.add(location);
             }
         }
-
-        // Update adapter with search results
         locationAdapter.updateList(filteredResults);
     }
 
-
-    private void openMapFragment(Location location) {
-        Fragment mapFragment = new MapFragment();
+    private void openDetailFragment(Location location) {
+        Fragment detailFragment = new LocationDetailFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("locationName", location.getName());
-        bundle.putString("locationDescription", location.getDescription());
-        bundle.putString("imageUrl", location.getImageUrl());
-        bundle.putDouble("latitude", location.getLatitude());
-        bundle.putDouble("longitude", location.getLongitude());
-        mapFragment.setArguments(bundle);
+        bundle.putString("locationId", location.getId());
+        detailFragment.setArguments(bundle);
 
-        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_map);
-        }
-
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, mapFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
+
 }

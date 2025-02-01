@@ -78,8 +78,6 @@ public class UsersRepository {
         return auth.getCurrentUser();
     }
 
-
-
     /**
      * Deletes a user document from Firestore.
      *

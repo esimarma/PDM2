@@ -1,5 +1,6 @@
 package com.example.pdm2_projeto;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,19 +13,34 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.pdm2_projeto.adapters.LocationAdapter;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
+import com.example.pdm2_projeto.models.Favorite;
+import com.example.pdm2_projeto.models.Location;
 import com.example.pdm2_projeto.models.User;
+import com.example.pdm2_projeto.repositories.FavoritesRepository;
+import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.example.pdm2_projeto.repositories.UsersRepository;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
-    private View loggedOutContainer, loggedInContainer, headerLogo;
-    private TextView welcomeText, headerTitle;
+    private View loggedOutContainer;
+    private View loggedInContainer;
+    private TextView welcomeText;
     private UsersRepository usersRepository;
+    private FavoritesRepository favoritesRepository;
+    private LocationsRepository locationsRepository;
+    private List<Location> favoriteLocations;
+    private LocationAdapter locationAdapter;
 
     @Nullable
     @Override
@@ -36,11 +52,63 @@ public class ProfileFragment extends Fragment {
 
         // Set up the user repository
         usersRepository = new UsersRepository();
+        favoritesRepository = new FavoritesRepository();
+        locationsRepository = new LocationsRepository();
+        favoriteLocations = new ArrayList<>();
+
+        RecyclerView recyclerView = view.findViewById(R.id.favorites_recycler_view);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
+        locationAdapter = new LocationAdapter(getContext(), favoriteLocations, this::openDetailFragment);
+        recyclerView.setAdapter(locationAdapter);
 
         // Check user authentication state
         checkUserAuthentication();
 
+        loadFavorites();
+
         return view;
+    }
+
+    private void loadFavorites() {
+        favoritesRepository.getUserFavorites(new FavoritesRepository.FavoritesCallback() {
+            @Override
+            public void onSuccess(List<Favorite> favorites) {
+                favoriteLocations.clear();
+                for (Favorite favorite : favorites) {
+                    locationsRepository.getLocationById(favorite.getLocationId(), new LocationsRepository.SingleLocationCallback() {
+                        @SuppressLint("NotifyDataSetChanged")
+                        @Override
+                        public void onSuccess(Location location) {
+                            favoriteLocations.add(location);
+                            locationAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void openDetailFragment(Location location) {
+        Fragment detailFragment = new LocationDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("locationId", location.getId());
+        detailFragment.setArguments(bundle);
+
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
@@ -52,7 +120,7 @@ public class ProfileFragment extends Fragment {
         welcomeText = view.findViewById(R.id.welcome_text);
 
         // Ensure bottom navigation and top header are visible
-        setNavigationAndHeaderVisibility(View.VISIBLE);
+        setNavigationAndHeaderVisibility();
 
         // Update the header title
         updateHeader();
@@ -66,25 +134,26 @@ public class ProfileFragment extends Fragment {
         // Find the profile logo and add click listener
         ImageView profileLogo = view.findViewById(R.id.profile_logo);
         profileLogo.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
+
     }
 
     /**
      * Ensures the bottom navigation bar and top header are visible.
      */
-    private void setNavigationAndHeaderVisibility(int visibility) {
-        requireActivity().findViewById(R.id.bottom_navigation).setVisibility(visibility);
-        requireActivity().findViewById(R.id.top_header).setVisibility(visibility);
+    private void setNavigationAndHeaderVisibility() {
+        requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+        requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
     }
 
     /**
      * Updates the header title to display "Profile".
      */
     private void updateHeader() {
-        headerTitle = requireActivity().findViewById(R.id.header_title);
+        TextView headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
             headerTitle.setText(getString(R.string.profile));
         }
-        headerLogo = requireActivity().findViewById(R.id.app_icon);
+        View headerLogo = requireActivity().findViewById(R.id.app_icon);
         if (headerLogo != null) {
             headerLogo.setVisibility(View.GONE);
         }
@@ -191,6 +260,6 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // Ensure the top header is visible when this fragment is active
-        setNavigationAndHeaderVisibility(View.VISIBLE);
+        setNavigationAndHeaderVisibility();
     }
 }
