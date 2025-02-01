@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -74,12 +75,13 @@ public class HomeFragment extends Fragment {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
             bottomSheet.setFilterListener(categoryId -> {
                 if (categoryId.isEmpty()) {
-                    loadLocations(); // Se nenhum filtro for aplicado, carregar todas as localizações
+                    loadLocations();
                 } else {
                     loadFilteredLocations(categoryId);
                 }
             });
             bottomSheet.show(getChildFragmentManager(), "FilterBottomSheet");
+
         });
     }
 

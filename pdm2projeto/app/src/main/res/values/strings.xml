@@ -79,4 +79,7 @@
     <string name="upload_success">Profile photo upload success!</string>
     <string name="upload_failed">Error uploading profile photo!</string>
 
+    <string name="apply_filters">Apply Filters</string>
+    <string name="remove_filters">Remove Filters</string>
+
 </resources>

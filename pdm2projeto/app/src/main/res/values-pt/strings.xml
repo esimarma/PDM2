@@ -80,4 +80,6 @@
     <string name="upload_success">Sucesso ao carregar a foto de perfil!</string>
     <string name="upload_failed">Erro ao carregar a foto de perfil!</string>
 
+    <string name="apply_filters">Aplicar Filtros</string>
+    <string name="remove_filters">Remover Filtros</string>
 </resources>

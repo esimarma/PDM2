@@ -85,6 +85,14 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
             dismiss();
         });
 
+        Button btnClearFilters = view.findViewById(R.id.btn_remove_filters);
+        btnClearFilters.setOnClickListener(v -> {
+            if (filterListener != null) {
+                filterListener.onFilterSelected(""); // Enviar ID vazio para remover filtros
+            }
+            dismiss(); // Fechar o BottomSheet
+        });
+
         return view;
     }
 }

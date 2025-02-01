@@ -17,16 +17,33 @@
     <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/spinner_categories"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:padding="8dp"/>
+        android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/btn_apply_filters"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Aplicar Filtros"
+        android:orientation="horizontal"
         android:layout_marginTop="16dp"
-        android:textColor="@color/white_gray_text"
-        android:backgroundTint="?attr/colorSecondaryContainer"/>
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_apply_filters"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/apply_filters"
+            android:textColor="@color/white_gray_text"
+            android:backgroundTint="?attr/colorSecondaryContainer"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_remove_filters"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/remove_filters"
+            android:textColor="@color/app_background"
+            android:backgroundTint="@color/app_secondary_text"/>
+    </LinearLayout>
 </LinearLayout>
