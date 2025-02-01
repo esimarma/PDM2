@@ -133,6 +133,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
             if (marker != null) {
+                markerData.put(marker, new LocationInfo(locationName, locationDescription, imageUrl)); //Ensure markerData contains the clicked marker
                 marker.showInfoWindow();
             }
 
@@ -217,7 +218,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             .snippet(location.getDescription())
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 
-                    markerData.put(marker, new LocationInfo(location.getName(), location.getDescription(), location.getImageUrl()));
+                    // Ensure marker is not null before adding to markerData
+                    if (marker != null) {
+                        markerData.put(marker, new LocationInfo(location.getName(), location.getDescription(), location.getImageUrl()));
+                    }
                 }
             }
 
@@ -228,6 +232,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
     }
+
 
     class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private final View mWindow;

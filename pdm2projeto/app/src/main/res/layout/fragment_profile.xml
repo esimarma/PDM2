@@ -84,13 +84,17 @@
         android:layout_marginTop="16dp">
 
         <!-- Profile Logo -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profile_logo"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:src="@drawable/ic_app"
             android:contentDescription="Profile Logo"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:scaleType="centerCrop"
+            app:strokeColor="@color/white"
+            app:strokeWidth="2dp"
+            app:shapeAppearanceOverlay="@style/RoundedImage"/>
 
         <!-- Welcome Message -->
         <TextView

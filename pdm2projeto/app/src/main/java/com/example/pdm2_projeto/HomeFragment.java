@@ -139,30 +139,29 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    loadLocations();
+                    locationAdapter.updateList(locationList); // Restore full list when search is empty
                 } else {
-                    searchLocations(newText);
+                    searchLocations(newText); // Perform search
                 }
                 return true;
             }
         });
     }
-
     private void searchLocations(String query) {
-        locationsRepository.getLocationsByName(query, new LocationsRepository.LocationCallback() {
-            @Override
-            public void onSuccess(List<Location> locations) {
-                locationList.clear();
-                locationList.addAll(locations);
-                locationAdapter.notifyDataSetChanged();
-            }
+        List<Location> filteredResults = new ArrayList<>();
 
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
+        // Apply search to the currently displayed list (filtered or unfiltered)
+        for (Location location : locationList) {
+            if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
+                    location.getDescription().toLowerCase().contains(query.toLowerCase())) {
+                filteredResults.add(location);
             }
-        });
+        }
+
+        // Update adapter with search results
+        locationAdapter.updateList(filteredResults);
     }
+
 
     private void openMapFragment(Location location) {
         Fragment mapFragment = new MapFragment();

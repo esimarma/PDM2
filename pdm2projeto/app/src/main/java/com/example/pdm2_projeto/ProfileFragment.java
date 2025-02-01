@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
@@ -148,8 +149,18 @@ public class ProfileFragment extends Fragment {
                 String name = user.getName();
                 welcomeText.setText(getString(R.string.hello) + " " + (name != null ? name : getString(R.string.user)));
 
-                // Set up click listener for profile image when logged in
+                // Find the profile image view
                 ImageView profileImage = requireView().findViewById(R.id.profile_logo);
+
+                // Load the profile picture using Glide
+                if (user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()) {
+                    Glide.with(requireContext())
+                            .load(user.getProfilePictureUrl())
+                            .placeholder(R.drawable.ic_profile) // Default profile picture
+                            .into(profileImage);
+                }
+
+                // Set up click listener for navigating to AccountFragment
                 profileImage.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
             }
 

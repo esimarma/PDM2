@@ -32,6 +32,11 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
         this.locationList = locationList;
         this.onItemClickListener = listener;
     }
+    public void updateList(List<Location> filteredResults) {
+        this.locationList.clear();  // Clear current list
+        this.locationList.addAll(filteredResults); // Add new filtered results
+        notifyDataSetChanged();  // Notify RecyclerView to update
+    }
 
     @NonNull
     @Override

@@ -82,4 +82,7 @@
 
     <string name="apply_filters">Aplicar Filtros</string>
     <string name="remove_filters">Remover Filtros</string>
+
+    <string name="last_login">Último login: </string>
+    <string name="no_login_record">Nenhum registro de login anterior disponível</string>
 </resources>

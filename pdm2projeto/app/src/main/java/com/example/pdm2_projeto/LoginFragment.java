@@ -19,8 +19,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
+import com.example.pdm2_projeto.models.Account;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
+import com.example.pdm2_projeto.roomdb.AppDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 
 /**
@@ -107,7 +109,10 @@ public class LoginFragment extends Fragment {
 
             loginButton.setEnabled(false); // Disable button to prevent multiple requests
             auth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener(authResult -> fetchUserData())
+                    .addOnSuccessListener(authResult -> {
+                        saveLoginTimestamp();  // Save timestamp after successful login
+                        fetchUserData();
+                    })
                     .addOnFailureListener(e -> {
                         showToast(getString(R.string.login_failed) + e.getMessage());
                         loginButton.setEnabled(true);
@@ -156,6 +161,13 @@ public class LoginFragment extends Fragment {
 
         passwordResetDialog.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
         passwordResetDialog.show();
+    }
+
+    private void saveLoginTimestamp() {
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            db.accountDao().insert(new Account(System.currentTimeMillis()));
+        }).start();
     }
 
 

@@ -92,17 +92,17 @@ public class SettingsFragment extends Fragment {
      * Creates the list of settings options based on user authentication status.
      */
     private List<String> createSettingsOptions() {
-        List<String> settingsOptions = new ArrayList<>(Arrays.asList(
-                getString(R.string.language_option),
-                getString(R.string.account_option), // Add "Conta" (Account)
-                getString(R.string.github_option)
-        ));
+        List<String> settingsOptions = new ArrayList<>();
+
+        settingsOptions.add(getString(R.string.language_option));
+        settingsOptions.add(getString(R.string.github_option));
 
         usersRepository = new UsersRepository();
         FirebaseUser currentUser = usersRepository.getAuthenticatedUser();
 
         if (currentUser != null) {
-            settingsOptions.add(getString(R.string.logout_option));
+            settingsOptions.add(getString(R.string.account_option)); // Show only if logged in
+            settingsOptions.add(getString(R.string.logout_option)); // Show only if logged in
         }
 
         return settingsOptions;

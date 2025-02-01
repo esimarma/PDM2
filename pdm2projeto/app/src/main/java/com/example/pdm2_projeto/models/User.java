@@ -1,21 +1,22 @@
 package com.example.pdm2_projeto.models;
 
+import com.google.firebase.Timestamp;
 import java.io.Serializable;
 
 /**
- * Model that represents users
- */
+
+ Model that represents users*/
 public class User implements Serializable {
     private String id;
     private String name;
     private String email;
     private String profilePictureUrl;
-    private String createdAt;
+    private Timestamp createdAt; // Changed from String to Timestamp
 
     public User() {
     }
 
-    public User(String id, String name, String email, String profilePictureUrl, String createdAt) {
+    public User(String id, String name, String email, String profilePictureUrl, Timestamp createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -55,11 +56,11 @@ public class User implements Serializable {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    public String getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 }

@@ -22,6 +22,7 @@ import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.Timestamp;
 
 import java.util.Arrays;
 import java.util.List;
@@ -144,13 +145,17 @@ public class RegisterFragment extends Fragment {
         FirebaseAuth.getInstance()
                 .createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
+
+                    // Firestore Timestamp (instead of System.currentTimeMillis())
+                    Timestamp createdAt = Timestamp.now();
+
                     String userId = authResult.getUser().getUid();
                     User user = new User(
                             userId,
                             name,
                             email,
                             null,
-                            String.valueOf(System.currentTimeMillis())
+                            createdAt
                     );
 
                     usersRepository.registerUser(user, new FirestoreCallback() {

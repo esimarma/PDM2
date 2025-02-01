@@ -34,6 +34,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
+import com.example.pdm2_projeto.roomdb.AppDatabase;
+import com.example.pdm2_projeto.roomdb.Daos.AccountDao;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -77,6 +79,9 @@ public class AccountFragment extends Fragment {
         deleteAccountButton = view.findViewById(R.id.delete_account_button);
         deleteAccountWarning = view.findViewById(R.id.delete_account_warning);
         accountCreationDate = view.findViewById(R.id.account_creation_date);
+        TextView lastLoginTextView = view.findViewById(R.id.last_login_text);
+        loadLastLoginTimestamp(lastLoginTextView);
+
 
         // Configure the back button
         configureBackButton(view);
@@ -368,8 +373,16 @@ public class AccountFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
+        if (resultCode == RESULT_OK) {
+            Uri selectedImageUri = null;
+
+            if (requestCode == REQUEST_PICK_IMAGE && data != null) {
+                // Image selected from gallery
+                selectedImageUri = data.getData();
+            } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                // Image taken with camera
+                selectedImageUri = photoUri;
+            }
 
             if (selectedImageUri != null) {
                 usersRepository.uploadProfilePicture(selectedImageUri, new FirestoreCallback() {
@@ -543,5 +556,22 @@ public class AccountFragment extends Fragment {
                         }
                     });
                 });
+    }
+    private void loadLastLoginTimestamp(TextView lastLoginTextView) {
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            AccountDao accountDao = db.accountDao();
+            Long lastLogin = accountDao.getLastLoginTimestamp();
+
+            requireActivity().runOnUiThread(() -> {
+                if (lastLogin != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+                    String formattedDate = sdf.format(new Date(lastLogin));
+                    lastLoginTextView.setText(getString(R.string.last_login) + " " + formattedDate);
+                } else {
+                    lastLoginTextView.setText(getString(R.string.no_login_record));
+                }
+            });
+        }).start();
     }
 }
