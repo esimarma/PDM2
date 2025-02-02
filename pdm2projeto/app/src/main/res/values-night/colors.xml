@@ -15,4 +15,6 @@
     <color name="icon_color">@color/app_primary_text</color>
     <color name="white_gray_text">@color/app_primary_text</color>
     <color name="red">#C00808</color>
+
+    <color name="card_color">#191919 </color>
 </resources>

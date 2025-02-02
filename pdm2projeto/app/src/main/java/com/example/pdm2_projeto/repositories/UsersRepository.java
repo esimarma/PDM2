@@ -159,4 +159,22 @@ public class UsersRepository {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }
+
+    public void getUserById(String userId, FirestoreCallback<User> callback) {
+        db.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            user.setId(userId);
+                        }
+                        callback.onSuccess(user);
+                    } else {
+                        callback.onFailure(new Exception("User not found."));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
 }
