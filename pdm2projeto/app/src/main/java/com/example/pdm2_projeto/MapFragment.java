@@ -253,7 +253,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             description.setText(locationInfo.address);
 
             ImageView image = view.findViewById(R.id.info_window_image);
-            Glide.with(getContext()).load(locationInfo.imageUrl).into(image);
+
+            // Load image asynchronously using Glide
+            Glide.with(getContext())
+                    .load(locationInfo.imageUrl)
+                    .placeholder(R.drawable.default_placeholder) // Show a placeholder while loading
+                    .into(new com.bumptech.glide.request.target.CustomTarget<android.graphics.drawable.Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull android.graphics.drawable.Drawable resource, @Nullable com.bumptech.glide.request.transition.Transition<? super android.graphics.drawable.Drawable> transition) {
+                            image.setImageDrawable(resource);
+
+                            // Force update the InfoWindow once the image is ready
+                            if (marker.isInfoWindowShown()) {
+                                marker.hideInfoWindow();  // Hide first
+                                marker.showInfoWindow();  // Show again to refresh
+                            }
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
+                            image.setImageDrawable(placeholder);
+                        }
+                    });
         }
 
         @Override
@@ -267,4 +288,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return null;
         }
     }
+
 }

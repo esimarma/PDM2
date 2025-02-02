@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ public class HomeFragment extends Fragment {
     private List<Location> locationList;
     private LocationsRepository locationsRepository;
     private SearchView searchView;
+    private String currentFilter = null;
     TextView headerTitle;
     View headerLogo;
 
@@ -39,6 +41,19 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        ImageButton btnFilter = view.findViewById(R.id.btn_filter);
+        btnFilter.setOnClickListener(v -> {
+            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+            bottomSheet.setFilterListener(categoryId -> {
+                if (categoryId.isEmpty()) {
+                    loadLocations();
+                } else {
+                    applyFilter(categoryId); // Use applyFilter() instead
+                }
+            });
+            bottomSheet.show(getChildFragmentManager(), "FilterBottomSheet");
+        });
 
         requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
         requireActivity().findViewById(R.id.top_header).setVisibility(View.VISIBLE);
@@ -108,7 +123,12 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    locationAdapter.updateList(locationList);
+                    // Instead of showing all locations, restore based on the active filter
+                    if (currentFilter != null && !currentFilter.isEmpty()) {
+                        loadFilteredLocations(currentFilter);  // Reload filtered results
+                    } else {
+                        locationAdapter.updateList(locationList); // Restore all locations
+                    }
                 } else {
                     searchLocations(newText);
                 }
@@ -138,6 +158,26 @@ public class HomeFragment extends Fragment {
                 .replace(R.id.fragment_container, detailFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void loadFilteredLocations(String categoryId) {
+        locationsRepository.getLocationsByCategory(categoryId, new LocationsRepository.LocationCallback() {
+            @Override
+            public void onSuccess(List<Location> locations) {
+                locationList.clear();
+                locationList.addAll(locations);
+                locationAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+    private void applyFilter(String filterCategory) {
+        currentFilter = filterCategory;  // Store the active filter
+        loadFilteredLocations(filterCategory);
     }
 
 }
