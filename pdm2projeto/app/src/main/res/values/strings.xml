@@ -65,6 +65,16 @@
     <string name="profile_picture_removed">Profile picture removed successfully!</string>
     <string name="profile_picture_remove_failed">Error removing profile picture:</string>
 
+    <string name="save">Save</string>
+    <string name="fill_all_fields">Please fill in all fields</string>
+    <string name="profile_updated">Profile updated successfully</string>
+    <string name="profile_update_failed">Failed to update profile</string>
+    <string name="email_updated">Email updated successfully</string>
+    <string name="email_update_failed">Failed to update email: </string>
+    <string name="enter_password_to_update_email">Please enter your password to update the email</string>
+    <string name="reauthentication_failed">Reauthentication failed: </string>
+
+
     <string name="remove_profile_picture">Delete Profile Photo</string>
     <string name="remove_profile_picture_message">Are you sure you want to remove your profile photo?</string>
     <string name="yes">Yes</string>

@@ -65,6 +65,15 @@
     <string name="profile_picture_removed">Foto removida com sucesso!</string>
     <string name="profile_picture_remove_failed">Erro ao remover foto:</string>
 
+    <string name="save">Salvar</string>
+    <string name="fill_all_fields">Por favor, preencha todos os campos</string>
+    <string name="profile_updated">Perfil atualizado com sucesso</string>
+    <string name="profile_update_failed">Falha ao atualizar o perfil</string>
+    <string name="email_updated">E-mail atualizado com sucesso</string>
+    <string name="email_update_failed">Falha ao atualizar o e-mail: </string>
+    <string name="enter_password_to_update_email">Por favor, insira sua senha para atualizar o e-mail</string>
+    <string name="reauthentication_failed">Falha na reautenticação: </string>
+
     <string name="remove_profile_picture">Apagar Foto de Perfil</string>
     <string name="remove_profile_picture_message">Tem certeza de que deseja apagar sua foto de perfil?</string>
     <string name="yes">Sim</string>

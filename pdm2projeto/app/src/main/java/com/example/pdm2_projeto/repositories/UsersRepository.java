@@ -6,9 +6,14 @@ import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Repository class for managing user-related operations.
  */
@@ -140,6 +145,17 @@ public class UsersRepository {
         db.collection("users")
                 .document(userId)
                 .update("profilePictureUrl", profilePictureUrl)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+    public void updateUserDetails(String userId, String newName, String newEmail, FirestoreCallback<Void> callback) {
+        DocumentReference userRef = db.collection("users").document(userId); // Use 'db' instead of 'firestore'
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", newName);
+        updates.put("email", newEmail);
+
+        userRef.update(updates)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }

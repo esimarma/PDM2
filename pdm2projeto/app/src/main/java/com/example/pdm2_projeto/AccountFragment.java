@@ -80,8 +80,8 @@ public class AccountFragment extends Fragment {
         deleteAccountWarning = view.findViewById(R.id.delete_account_warning);
         accountCreationDate = view.findViewById(R.id.account_creation_date);
         TextView lastLoginTextView = view.findViewById(R.id.last_login_text);
-        loadLastLoginTimestamp(lastLoginTextView);
 
+        loadLastLoginTimestamp(lastLoginTextView);
 
         // Configure the back button
         configureBackButton(view);
@@ -109,10 +109,113 @@ public class AccountFragment extends Fragment {
 
         return view;
     }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ImageView btnSave = view.findViewById(R.id.save_button);
+        if (btnSave != null) {
+            btnSave.setOnClickListener(v -> saveUserData());
+        }
+
+        // Load user data AFTER initializing UI components
+        loadUserData();
+    }
 
     private void configureBackButton(View view) {
         view.findViewById(R.id.back_button).setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
     }
+
+    private void saveUserData() {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(getContext(), getString(R.string.not_signed_in), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String newName = editTextName.getText().toString().trim();
+        String newEmail = editTextEmail.getText().toString().trim();
+        String currentEmail = currentUser.getEmail(); // Get the current email
+
+        if (newName.isEmpty() || newEmail.isEmpty()) {
+            Toast.makeText(getContext(), getString(R.string.fill_all_fields), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            Toast.makeText(getContext(), getString(R.string.enter_valid_email), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if the email has changed
+        boolean emailChanged = !newEmail.equals(currentEmail);
+
+        // If only the name changed, update it directly
+        if (!emailChanged) {
+            usersRepository.updateUserDetails(currentUser.getUid(), newName, newEmail, new FirestoreCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    Toast.makeText(getContext(), getString(R.string.profile_updated), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), getString(R.string.profile_update_failed), Toast.LENGTH_SHORT).show();
+                }
+            });
+            return; // Exit the function since we don’t need to update the email
+        }
+
+        // If email is changed, ask for password before updating
+        AlertDialog.Builder passwordDialog = new AlertDialog.Builder(requireContext());
+        passwordDialog.setTitle(getString(R.string.enter_password_to_update_email));
+
+        final EditText passwordInput = new EditText(requireContext());
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordDialog.setView(passwordInput);
+
+        passwordDialog.setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
+            String password = passwordInput.getText().toString().trim();
+            if (password.isEmpty()) {
+                Toast.makeText(getContext(), getString(R.string.enter_valid_password), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Reauthenticate the user before updating the email
+            AuthCredential credential = EmailAuthProvider.getCredential(currentEmail, password);
+            currentUser.reauthenticate(credential).addOnSuccessListener(authResult -> {
+                // Proceed with email update after successful reauthentication
+                currentUser.updateEmail(newEmail)
+                        .addOnSuccessListener(aVoid -> {
+                            usersRepository.updateUserDetails(currentUser.getUid(), newName, newEmail, new FirestoreCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    Toast.makeText(getContext(), getString(R.string.profile_updated), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Toast.makeText(getContext(), getString(R.string.profile_update_failed), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                            Toast.makeText(getContext(), getString(R.string.email_updated), Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), getString(R.string.email_update_failed) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(getContext(), getString(R.string.reauthentication_failed) + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+
+        });
+
+        passwordDialog.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+        passwordDialog.show();
+    }
+
+
+
 
     /**
      * Updates all UI texts to reflect the currently selected language.
@@ -125,7 +228,7 @@ public class AccountFragment extends Fragment {
         if (emailField != null) emailField.setText(getString(R.string.email));
         if (changePassword != null) changePassword.setText(getString(R.string.change_password));
         if (deleteAccountButton != null) deleteAccountButton.setText(getString(R.string.delete_account));
-            accountCreationDate.setText(getString(R.string.account_creation_date) + " #data");
+        accountCreationDate.setText(getString(R.string.account_creation_date) + " #data");
             deleteAccountWarning.setText(getString(R.string.delete_account_warning));
 
     }
