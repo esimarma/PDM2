@@ -28,7 +28,6 @@ public class CommentsRepository {
     // Get comments for a specific location
     public void getCommentsByLocation(String locationId, FirestoreCallback<List<Comment>> callback) {
         commentsCollection.whereEqualTo("locationId", locationId)
-                .orderBy("createdAt", Query.Direction.DESCENDING) // Order by newest
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Comment> comments = new ArrayList<>();

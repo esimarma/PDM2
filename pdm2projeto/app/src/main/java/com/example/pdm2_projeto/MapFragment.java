@@ -96,11 +96,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void updateHeader() {
         TextView headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
-            headerTitle.setText(getString(R.string.profile));
+            headerTitle.setText(getString(R.string.map));
         }
         View headerLogo = requireActivity().findViewById(R.id.app_icon);
         if (headerLogo != null) {
-            headerLogo.setVisibility(View.GONE);
+            headerLogo.setVisibility(View.VISIBLE);
         }
     }
 
