@@ -226,7 +226,7 @@ public class SettingsFragment extends Fragment {
      * Opens the GitHub repository link in a browser.
      */
     private void openGitHubRepository() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/"));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/esimarma/PDM2"));
         startActivity(browserIntent);
     }
 
