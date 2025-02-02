@@ -6,27 +6,41 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.pdm2_projeto.adapters.CommentAdapter;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
+import com.example.pdm2_projeto.models.Comment;
 import com.example.pdm2_projeto.models.Location;
+import com.example.pdm2_projeto.repositories.CommentsRepository;
 import com.example.pdm2_projeto.repositories.FavoritesRepository;
 import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.List;
 
 public class LocationDetailFragment extends Fragment {
 
     // UI components
     private TextView locationName, locationCountry;
-    private ImageView locationImage, favoriteIcon;
-    private Button btnOpenMap;
+    private ImageView locationImage, favoriteIcon, btnAddComment;
+    private Button btnOpenMap, btnSubmitComment;
+    private EditText editComment;
+    private LinearLayout commentInputContainer;
+    private RecyclerView recyclerComments;
 
     // Location details
     private double latitude, longitude;
@@ -38,6 +52,7 @@ public class LocationDetailFragment extends Fragment {
     // Repositories for data handling
     private LocationsRepository locationsRepository;
     private FavoritesRepository favoritesRepository;
+    private CommentsRepository commentsRepository;
 
     @Nullable
     @Override
@@ -48,11 +63,20 @@ public class LocationDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Initialize UI components
         initializeUI(view);
-        updateHeader();
         initializeRepositories();
+
+        updateHeader();
         loadArguments();
         setClickListeners();
+
+        // Initialize RecyclerView for comments
+        recyclerComments.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Load comments from Firestore
+        loadCommentsFromFirestore();
     }
 
     private void updateHeader() {
@@ -73,12 +97,18 @@ public class LocationDetailFragment extends Fragment {
         locationImage = view.findViewById(R.id.location_image);
         btnOpenMap = view.findViewById(R.id.btn_open_map);
         favoriteIcon = view.findViewById(R.id.favorite_icon);
+        btnAddComment = view.findViewById(R.id.btn_add_comment);
+        btnSubmitComment = view.findViewById(R.id.btn_submit_comment);
+        editComment = view.findViewById(R.id.edit_comment);
+        commentInputContainer = view.findViewById(R.id.comment_input_container);
+        recyclerComments = view.findViewById(R.id.recycler_comments);
     }
 
-    // Initializes repositories to manage location and favorite data
+    // Initializes repositories to manage location, favorites, and comments
     private void initializeRepositories() {
         locationsRepository = new LocationsRepository();
         favoritesRepository = new FavoritesRepository();
+        commentsRepository = new CommentsRepository();
     }
 
     // Retrieves arguments passed to the fragment and fetches necessary data
@@ -86,9 +116,11 @@ public class LocationDetailFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             locationId = args.getString("locationId");
+            Log.d("LocationDetailFragment", "Loaded locationId: " + locationId); // Debug Log
             if (locationId != null) {
                 fetchLocationDetails(locationId);
                 checkIfLocationIsFavorited();
+                loadCommentsFromFirestore(); // Ensure comments are loaded when locationId is set
             }
         }
     }
@@ -97,6 +129,24 @@ public class LocationDetailFragment extends Fragment {
     private void setClickListeners() {
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
         btnOpenMap.setOnClickListener(v -> openMapFragment());
+
+        btnAddComment.setOnClickListener(v -> {
+            // Toggle visibility for comment input
+            if (commentInputContainer.getVisibility() == View.GONE) {
+                commentInputContainer.setVisibility(View.VISIBLE);
+            } else {
+                commentInputContainer.setVisibility(View.GONE);
+            }
+        });
+
+        btnSubmitComment.setOnClickListener(v -> {
+            String commentText = editComment.getText().toString().trim();
+            if (!commentText.isEmpty()) {
+                addCommentToFirestore(commentText);
+                editComment.setText(""); // Clear input field after submission
+                commentInputContainer.setVisibility(View.GONE); // Hide input box
+            }
+        });
     }
 
     // Checks if the current location is marked as a favorite
@@ -154,7 +204,40 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Fetches location details from the repository and updates UI
+    // Save comment to Firestore
+    private void addCommentToFirestore(String commentText) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Comment newComment = new Comment(userId, locationId, commentText, Timestamp.now());
+
+        commentsRepository.addComment(newComment, new FirestoreCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.d("Comments", "Comment added successfully!");
+                new android.os.Handler().postDelayed(() -> loadCommentsFromFirestore(), 1000); // Wait 1 sec before reloading
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("Firestore", "Error adding comment", e);
+            }
+        });
+    }
+
+    // Load comments from Firestore
+    private void loadCommentsFromFirestore() {
+        commentsRepository.getCommentsByLocation(locationId, new FirestoreCallback<List<Comment>>() {
+            @Override
+            public void onSuccess(List<Comment> comments) {
+                recyclerComments.setAdapter(new CommentAdapter(getContext(), comments));
+            }
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("Firestore", "Error fetching comments", e);
+            }
+        });
+    }
+
+    // Fetches location details and updates UI
     private void fetchLocationDetails(String locationId) {
         locationsRepository.getLocationById(locationId, new LocationsRepository.SingleLocationCallback() {
             @Override
@@ -168,29 +251,34 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Updates UI components with the retrieved location details
+    // Updates UI components with retrieved location details
     private void updateUIWithLocationDetails(Location location) {
         name = location.getName();
         description = location.getDescription();
-        String country = location.getCountry();
         imageUrl = location.getImageUrl();
+
+        // Make sure these values are correctly retrieved
         latitude = location.getLatitude();
         longitude = location.getLongitude();
 
         locationName.setText(name);
-        locationCountry.setText(country);
+        locationCountry.setText(location.getCountry());
+
+        // Ensure image loads properly
         Glide.with(requireContext()).load(imageUrl).into(locationImage);
     }
 
-    // Opens a new fragment to display the location on a map
     private void openMapFragment() {
         Fragment mapFragment = new MapFragment();
         Bundle bundle = new Bundle();
+
+        // Pass location details to the map fragment
         bundle.putString("locationName", name);
         bundle.putString("locationDescription", description);
         bundle.putString("imageUrl", imageUrl);
         bundle.putDouble("latitude", latitude);
         bundle.putDouble("longitude", longitude);
+
         mapFragment.setArguments(bundle);
 
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
@@ -204,4 +292,3 @@ public class LocationDetailFragment extends Fragment {
                 .commit();
     }
 }
-

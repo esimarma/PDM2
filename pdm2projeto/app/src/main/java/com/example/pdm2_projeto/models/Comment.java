@@ -1,19 +1,17 @@
 package com.example.pdm2_projeto.models;
 
-/**
- * Model that represents comments.
- */
+import com.google.firebase.Timestamp;
+
 public class Comment {
     private String id;
     private String userId;
     private String locationId;
     private String comment;
-    private String createdAt;
+    private Timestamp createdAt; // 🔥 Firestore Timestamp instead of String/long
 
-    public Comment() {}
+    public Comment() {} // Required for Firestore
 
-    public Comment(String id, String userId, String locationId, String comment, String createdAt) {
-        this.id = id;
+    public Comment(String userId, String locationId, String comment, Timestamp createdAt) {
         this.userId = userId;
         this.locationId = locationId;
         this.comment = comment;
@@ -52,11 +50,11 @@ public class Comment {
         this.comment = comment;
     }
 
-    public String getCreatedAt() {
+    public Timestamp getCreatedAt() { // 🔥 Get Firestore Timestamp
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(Timestamp createdAt) { // 🔥 Set Firestore Timestamp
         this.createdAt = createdAt;
     }
 }
