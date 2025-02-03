@@ -207,6 +207,11 @@ public class LocationDetailFragment extends Fragment {
 
     // Save comment to Firestore
     private void addCommentToFirestore(String commentText) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Toast.makeText(getContext(), "You need an account to comment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Comment newComment = new Comment(userId, locationId, commentText, Timestamp.now());
 
@@ -224,19 +229,49 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
+    private void deleteCommentFromFirestore(Comment comment) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Toast.makeText(getContext(), "You need an account to delete comments", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        if (!comment.getUserId().equals(currentUserId)) {
+            Toast.makeText(getContext(), "You can only delete your own comments", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        commentsRepository.deleteComment(comment, new FirestoreCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(getContext(), "Comment deleted", Toast.LENGTH_SHORT).show();
+                loadCommentsFromFirestore(); // Reload comments after deletion
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Error deleting comment", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     // Load comments from Firestore
     private void loadCommentsFromFirestore() {
         commentsRepository.getCommentsByLocation(locationId, new FirestoreCallback<List<Comment>>() {
             @Override
             public void onSuccess(List<Comment> comments) {
-                recyclerComments.setAdapter(new CommentAdapter(getContext(), comments));
+                recyclerComments.setAdapter(new CommentAdapter(getContext(), comments, comment -> deleteCommentFromFirestore(comment)));
             }
+
             @Override
             public void onFailure(Exception e) {
                 Log.e("Firestore", "Error fetching comments", e);
             }
         });
     }
+
 
     // Fetches location details and updates UI
     private void fetchLocationDetails(String locationId) {

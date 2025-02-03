@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,8 +18,8 @@ import com.example.pdm2_projeto.models.Comment;
 import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.UsersRepository;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -25,10 +27,16 @@ import java.util.Locale;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
     private Context context;
     private List<Comment> commentsList;
+    private OnCommentDeleteListener deleteListener;
 
-    public CommentAdapter(Context context, List<Comment> comments) {
+    public interface OnCommentDeleteListener {
+        void onDeleteComment(Comment comment);
+    }
+
+    public CommentAdapter(Context context, List<Comment> comments, OnCommentDeleteListener deleteListener) {
         this.context = context;
         this.commentsList = comments;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -76,6 +84,22 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         } else {
             holder.commentDate.setText("Unknown Date");
         }
+
+        // Check if the logged-in user is the author of the comment
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : null;
+
+        if (currentUserId != null && currentUserId.equals(comment.getUserId())) {
+            holder.btnDeleteComment.setVisibility(View.VISIBLE);
+            holder.btnDeleteComment.setOnClickListener(v -> {
+                if (deleteListener != null) {
+                    deleteListener.onDeleteComment(comment);
+                }
+            });
+        } else {
+            holder.btnDeleteComment.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -85,7 +109,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView commentText, commentDate, commentAuthor;
-        ImageView commentProfileImage; // Adicione essa linha
+        ImageView commentProfileImage, btnDeleteComment;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -93,6 +117,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             commentDate = itemView.findViewById(R.id.comment_date);
             commentAuthor = itemView.findViewById(R.id.comment_author);
             commentProfileImage = itemView.findViewById(R.id.profile_image);
+            btnDeleteComment = itemView.findViewById(R.id.btn_delete_comment); // Add delete button
         }
     }
 }

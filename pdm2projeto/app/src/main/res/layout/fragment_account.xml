@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        app:tint="?attr/colorOnBackground" />
+        app:tint="?attr/colorOnSurface" />
 
     <!-- Save Button (Top Right) -->
     <ImageView
@@ -30,7 +30,7 @@
         android:padding="5dp"
         android:clickable="true"
         android:focusable="true"
-        app:tint="@color/app_gray"
+        app:tint="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginEnd="16dp"

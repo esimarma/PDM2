@@ -135,20 +135,24 @@ public class SettingsFragment extends Fragment {
 
         int checkedItem = getCurrentLanguageIndex();
 
-        new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.language_dialog_title))
-                .setSingleChoiceItems(languages, checkedItem, (dialog, which) -> {
+                .setSingleChoiceItems(languages, checkedItem, (dialogInterface, which) -> {
                     if (which == 0) {
                         changeLanguage("pt");
                     } else if (which == 1) {
                         changeLanguage("en");
                     }
-                    dialog.dismiss();
+                    dialogInterface.dismiss();
                 })
-                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                .show();
-    }
+                .setNegativeButton(getString(R.string.cancel), (dialogInterface, which) -> dialogInterface.dismiss())
+                .create();
 
+        dialog.show();
+
+        // Change Cancel Button Color
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.app_primary_text));
+    }
     /**
      * Gets the index of the current language for the dialog selection.
      */
