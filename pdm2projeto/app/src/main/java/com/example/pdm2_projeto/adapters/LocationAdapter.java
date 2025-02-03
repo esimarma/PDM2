@@ -15,17 +15,18 @@ import com.bumptech.glide.Glide;
 import com.example.pdm2_projeto.R;
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.Location;
-import java.util.List;
 import com.example.pdm2_projeto.repositories.FavoritesRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
 
 public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHolder> {
 
-    private Context context;
-    private List<Location> locationList;
-    private OnItemClickListener onItemClickListener;
-    private FavoritesRepository favoritesRepository;
+    private final Context context;
+    private final List<Location> locationList;
+    private final OnItemClickListener onItemClickListener;
+    private final FavoritesRepository favoritesRepository;
     private String userId;
 
     public interface OnItemClickListener {
@@ -37,7 +38,10 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
         this.locationList = locationList;
         this.onItemClickListener = listener;
         this.favoritesRepository = new FavoritesRepository();
-        this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Prevents crash if no user is logged in
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        this.userId = (currentUser != null) ? currentUser.getUid() : null;
     }
 
     public void updateList(List<Location> filteredResults) {
@@ -61,19 +65,19 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
         holder.locationName.setText(location.getName());
         holder.locationCountry.setText(location.getCountry());
 
-        // Carregar imagem com Glide
         Glide.with(context).load(location.getImageUrl()).into(holder.locationImage);
 
-        // Verifica se o local já está nos favoritos
-        favoritesRepository.isLocationFavorited(location.getId())
-                .addOnSuccessListener(isFav -> {
-            updateFavoriteIcon(holder.favoriteIcon, isFav);
-        });
+        // Check favorites only if user is logged in
+        if (userId != null) {
+            favoritesRepository.isLocationFavorited(location.getId())
+                    .addOnSuccessListener(isFav -> updateFavoriteIcon(holder.favoriteIcon, isFav))
+                    .addOnFailureListener(e -> Log.e("Firestore", "Failed to fetch favorite status", e));
 
-        // Configura o clique no ícone de favoritos
-        holder.favoriteIcon.setOnClickListener(v -> toggleFavorite(holder.favoriteIcon, location));
+            holder.favoriteIcon.setOnClickListener(v -> toggleFavorite(holder.favoriteIcon, location));
+        } else {
+            holder.favoriteIcon.setVisibility(View.GONE);
+        }
 
-        // Clique para abrir detalhes
         holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(location));
     }
 
@@ -89,13 +93,15 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             locationImage = itemView.findViewById(R.id.location_image);
-            favoriteIcon = itemView.findViewById(R.id.favorite_icon); // Adicionado ao layout
+            favoriteIcon = itemView.findViewById(R.id.favorite_icon);
             locationName = itemView.findViewById(R.id.location_name);
             locationCountry = itemView.findViewById(R.id.location_country);
         }
     }
 
     private void toggleFavorite(ImageView favoriteIcon, Location location) {
+        if (userId == null) return;
+
         favoritesRepository.isLocationFavorited(location.getId())
                 .addOnSuccessListener(isFav -> {
                     if (isFav) {
@@ -107,7 +113,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
 
                             @Override
                             public void onFailure(Exception e) {
-                                Log.e("Firestore", "Erro ao remover favorito", e);
+                                Log.e("Firestore", "Error removing favorite", e);
                             }
                         });
                     } else {
@@ -119,19 +125,15 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
 
                             @Override
                             public void onFailure(Exception e) {
-                                Log.e("Firestore", "Erro ao remover favorito", e);
+                                Log.e("Firestore", "Error adding favorite", e);
                             }
                         });
                     }
                 })
-                .addOnFailureListener(e -> Log.e("Firestore", "Erro ao verificar favorito", e));
+                .addOnFailureListener(e -> Log.e("Firestore", "Error checking favorite status", e));
     }
 
     private void updateFavoriteIcon(ImageView icon, boolean isFavorite) {
-        if (isFavorite) {
-            icon.setImageResource(R.drawable.ic_favorite_checked); // Ícone de favorito ativo
-        } else {
-            icon.setImageResource(R.drawable.ic_favorite_unchecked); // Ícone de favorito inativo
-        }
+        icon.setImageResource(isFavorite ? R.drawable.ic_favorite_checked : R.drawable.ic_favorite_unchecked);
     }
 }
