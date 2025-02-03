@@ -92,6 +92,9 @@ public class AccountFragment extends Fragment {
         // Load user data from Firebase Firestore
         loadUserData();
 
+        // Remove header and navBar
+        updateMainActivity();
+
         // Handle profile image editing
         if (profilePicture != null) {
             profilePicture.setOnClickListener(v -> showProfilePictureDialog());
@@ -120,6 +123,11 @@ public class AccountFragment extends Fragment {
 
         // Load user data AFTER initializing UI components
         loadUserData();
+    }
+
+    private void updateMainActivity() {
+        requireActivity().findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
+        requireActivity().findViewById(R.id.top_header).setVisibility(View.GONE);
     }
 
     private void configureBackButton(View view) {
@@ -213,9 +221,6 @@ public class AccountFragment extends Fragment {
         passwordDialog.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
         passwordDialog.show();
     }
-
-
-
 
     /**
      * Updates all UI texts to reflect the currently selected language.

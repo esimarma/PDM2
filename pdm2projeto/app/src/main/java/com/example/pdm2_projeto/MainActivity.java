@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,6 +55,17 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        ImageView settingsButton = this.findViewById(R.id.menu_icon);
+        if (settingsButton != null) {
+            settingsButton.setOnClickListener(v -> {
+                this.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new SettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
     }
 
     /**

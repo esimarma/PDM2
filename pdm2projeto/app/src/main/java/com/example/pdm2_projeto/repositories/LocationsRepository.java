@@ -4,11 +4,13 @@ import android.util.Log;
 
 import com.example.pdm2_projeto.models.Location;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -33,7 +35,7 @@ public class LocationsRepository {
      * @param callback Callback interface to handle the results or errors.
      */
     public void getAllLocations(LocationCallback callback) {
-        locationCollection.get()
+        locationCollection.orderBy("name").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<Location> locations = new ArrayList<>();
@@ -70,37 +72,59 @@ public class LocationsRepository {
                 });
     }
 
-    public void getLocationsByName(String query, LocationCallback callback) {
-        locationCollection.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                List<Location> filteredLocations = new ArrayList<>();
-                String lowerCaseQuery = query.toLowerCase(); // Converte a pesquisa para minúsculas
+    public DocumentSnapshot lastDocumentSnapshot = null; // Mantém a referência do último documento
 
+    public void getPaginatedLocations(int pageSize, LocationCallback callback) {
+        Query query = locationCollection.orderBy("name").limit(pageSize);
+
+        if (lastDocumentSnapshot != null) {
+            query = query.startAfter(lastDocumentSnapshot);
+        }
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<Location> locations = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     try {
+                        String id = document.getId();
                         String name = document.getString("name");
-                        if (name != null && name.toLowerCase().contains(lowerCaseQuery)) { // Filtra ignorando maiúsculas
-                            String id = document.getId();
-                            String description = document.getString("description");
-                            String address = document.getString("address");
-                            String categoryId = document.getString("categoryId");
-                            String imageUrl = document.getString("imageUrl");
-                            String country = document.getString("country");
+                        String description = document.getString("description");
+                        String address = document.getString("address");
+                        String categoryId = document.getString("categoryId");
+                        String imageUrl = document.getString("imageUrl");
+                        String country = document.getString("country");
+                        double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
+                        double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
 
-                            double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
-                            double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
-
-                            filteredLocations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
+                        if (name != null && description != null) {
+                            locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
                         }
                     } catch (Exception e) {
-                        Log.e("LocationsRepository", "Erro ao processar documento: " + document.getId(), e);
+                        Log.e("LocationsRepository", "Erro ao analisar o documento: " + document.getId(), e);
                     }
                 }
-                callback.onSuccess(filteredLocations);
+
+                if (!task.getResult().isEmpty()) {
+                    lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                }
+
+                callback.onSuccess(locations);
             } else {
                 callback.onFailure(task.getException());
             }
         });
+    }
+
+    // Método para calcular a distância entre dois pontos (Haversine)
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // Raio da Terra em km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
     public void getLocationsByCategory(String categoryId, LocationCallback callback) {
