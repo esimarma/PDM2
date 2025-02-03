@@ -50,7 +50,14 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 // Converter categorias para uma lista de nomes
                 List<String> categoryNames = new ArrayList<>();
                 for (LocationCategory category : categories) {
-                    categoryNames.add(category.getDescription());
+                    String categoryName = "";
+
+                    if(getContext().getString(R.string.language).equals("en")){
+                        categoryName = category.getDescriptionEn();
+                    } else {
+                        categoryName = category.getDescription();
+                    }
+                    categoryNames.add(categoryName);
                 }
 
                 // Criar adaptador para o Spinner
