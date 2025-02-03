@@ -6,12 +6,14 @@ package com.example.pdm2_projeto.models;
 public class LocationCategory {
     private String id;
     private String description;
+    private String descriptionEn;
 
     public LocationCategory() {}
 
-    public LocationCategory(String id, String description) {
+    public LocationCategory(String id, String description, String descriptionEn) {
         this.id = id;
         this.description = description;
+        this.descriptionEn = descriptionEn;
     }
 
     public String getId() {
@@ -28,5 +30,13 @@ public class LocationCategory {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDescriptionEn() {
+        return descriptionEn;
+    }
+
+    public void setDescriptionEn(String descriptionEn) {
+        this.descriptionEn = descriptionEn;
     }
 }

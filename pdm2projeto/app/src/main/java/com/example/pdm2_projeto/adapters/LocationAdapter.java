@@ -1,5 +1,7 @@
 package com.example.pdm2_projeto.adapters;
 
+import static android.provider.Settings.System.getString;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,10 +62,22 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Location location = locationList.get(position);
-        Log.d("LocationAdapter", "Binding item: " + position + " - " + location.getName());
 
-        holder.locationName.setText(location.getName());
-        holder.locationCountry.setText(location.getCountry());
+        String name = "";
+        String country = "";
+
+        if(context.getString(R.string.language).equals("en")){
+            name = location.getNameEn();
+            country = location.getCountryEn();
+        } else {
+            name = location.getName();
+            country = location.getCountry();
+        }
+
+        Log.d("LocationAdapter", "Binding item: " + position + " - " + name);
+
+        holder.locationName.setText(name);
+        holder.locationCountry.setText(country);
 
         Glide.with(context).load(location.getImageUrl()).into(holder.locationImage);
 

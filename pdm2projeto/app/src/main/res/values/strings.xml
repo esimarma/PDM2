@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">PointView</string>
+
+    <string name="language">en</string>
+
     <string name="home">Home</string>
     <string name="map">Map</string>
     <string name="profile">Profile</string>

@@ -45,7 +45,8 @@ public class LocationDetailFragment extends Fragment {
     // Location details
     private double latitude, longitude;
     private String name;
-    private String description;
+    private String address;
+    private String country;
     private String imageUrl;
     private String locationId;
 
@@ -253,8 +254,16 @@ public class LocationDetailFragment extends Fragment {
 
     // Updates UI components with retrieved location details
     private void updateUIWithLocationDetails(Location location) {
-        name = location.getName();
-        description = location.getDescription();
+        address = location.getAddress();
+
+        if(getContext().getString(R.string.language).equals("en")){
+            name = location.getNameEn();
+            country = location.getCountryEn();
+        } else {
+            name = location.getName();
+            country = location.getCountry();
+        }
+
         imageUrl = location.getImageUrl();
 
         // Make sure these values are correctly retrieved
@@ -262,7 +271,7 @@ public class LocationDetailFragment extends Fragment {
         longitude = location.getLongitude();
 
         locationName.setText(name);
-        locationCountry.setText(location.getCountry());
+        locationCountry.setText(country);
 
         // Ensure image loads properly
         Glide.with(requireContext()).load(imageUrl).into(locationImage);
@@ -274,7 +283,7 @@ public class LocationDetailFragment extends Fragment {
 
         // Pass location details to the map fragment
         bundle.putString("locationName", name);
-        bundle.putString("locationDescription", description);
+        bundle.putString("address", address);
         bundle.putString("imageUrl", imageUrl);
         bundle.putDouble("latitude", latitude);
         bundle.putDouble("longitude", longitude);

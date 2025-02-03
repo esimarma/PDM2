@@ -212,16 +212,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onSuccess(List<Location> locations) {
                 for (Location location : locations) {
+
+                    String name = "";
+                    String country = "";
+
+                    if(getContext().getString(R.string.language).equals("en")){
+                        name = location.getNameEn();
+                        country = location.getCountryEn();
+                    } else {
+                        name = location.getName();
+                        country = location.getCountry();
+                    }
                     LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
                     Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(position)
-                            .title(location.getName())
-                            .snippet(location.getDescription())
+                            .title(name)
+                            .snippet(country)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 
                     // Ensure marker is not null before adding to markerData
                     if (marker != null) {
-                        markerData.put(marker, new LocationInfo(location.getName(), location.getDescription(), location.getImageUrl()));
+                        markerData.put(marker, new LocationInfo(name, country, location.getImageUrl()));
                     }
                 }
             }
@@ -279,6 +290,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         @Override
         public View getInfoWindow(@NonNull Marker marker) {
+            // Prevents showing an empty info window for the user’s location
+            if (!markerData.containsKey(marker)) {
+                return null;
+            }
+
             renderWindowText(marker, mWindow);
             return mWindow;
         }

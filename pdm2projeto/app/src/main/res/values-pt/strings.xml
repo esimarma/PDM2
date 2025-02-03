@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PointView</string>
+
+    <string name="language">pt</string>
+
     <string name="home">Início</string>
     <string name="map">Mapa</string>
     <string name="profile">Perfil</string>

@@ -43,21 +43,11 @@ public class LocationsRepository {
                         List<Location> locations = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                String id = document.getId(); // Firestore Document ID as fallback
-                                String name = document.getString("name");
-                                String description = document.getString("description");
-                                String address = document.getString("address");
-                                String categoryId = document.getString("categoryId");
-                                String imageUrl = document.getString("imageUrl");
-                                String country = document.getString("country");
-
-                                // Tratamento de latitude e longitude
-                                double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
-                                double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
+                                Location location = document.toObject(Location.class);
 
                                 // Verifica campos obrigatórios antes de adicionar à lista
-                                if (name != null && description != null) {
-                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
+                                if (location.getName() != null && location.getDescription() != null) {
+                                    locations.add(location);
                                 } else {
                                     Log.w("LocationsRepository", "Skipping document due to missing required fields: " + document.getId());
                                 }

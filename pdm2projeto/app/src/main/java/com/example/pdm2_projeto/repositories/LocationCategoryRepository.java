@@ -21,7 +21,7 @@ public class LocationCategoryRepository {
 
     public LocationCategoryRepository() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        categoryCollection = db.collection("location_category"); // Nome da coleção no Firestore
+        categoryCollection = db.collection("location_category");
     }
 
     public void getCategories(CategoryCallback callback) {
@@ -31,10 +31,10 @@ public class LocationCategoryRepository {
                         List<LocationCategory> categories = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                String id = document.getId();
-                                String name = document.getString("description");
-                                if (name != null) {
-                                    categories.add(new LocationCategory(id, name));
+                                LocationCategory locationCategory = document.toObject(LocationCategory.class);
+
+                                if (locationCategory.getDescription() != null) {
+                                    categories.add(locationCategory);
                                 } else {
                                     Log.w("LocationCategoryRepo", "Documento sem campo 'name': " + document.getId());
                                 }
