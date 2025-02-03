@@ -7,7 +7,7 @@ public class Comment {
     private String userId;
     private String locationId;
     private String comment;
-    private Timestamp createdAt; // 🔥 Firestore Timestamp instead of String/long
+    private Timestamp createdAt;
 
     public Comment() {} // Required for Firestore
 

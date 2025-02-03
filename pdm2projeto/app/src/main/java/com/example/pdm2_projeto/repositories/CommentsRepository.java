@@ -36,6 +36,7 @@ public class CommentsRepository {
                         comment.setId(document.getId()); // Assign Firestore document ID
                         comments.add(comment);
                     });
+                    comments.sort((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()));
                     callback.onSuccess(comments);
                 })
                 .addOnFailureListener(callback::onFailure);
