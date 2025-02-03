@@ -21,6 +21,8 @@ public class LocationsRepository {
     // Firestore collection reference for locations
     private final CollectionReference locationCollection;
 
+    public DocumentSnapshot lastDocumentSnapshot = null;
+
     /**
      * Constructor initializes the Firestore instance and points to the "locations" collection.
      */
@@ -72,8 +74,15 @@ public class LocationsRepository {
                 });
     }
 
-    public DocumentSnapshot lastDocumentSnapshot = null; // Mantém a referência do último documento
-
+    /**
+     * Fetches a paginated list of Locations from the Firestore database.
+     *
+     * Retrieves a set number of locations sorted by name, starting after the last retrieved document
+     * for pagination purposes.
+     *
+     * @param pageSize  The number of locations to fetch per request.
+     * @param callback  Callback interface to handle the result or errors.
+     */
     public void getPaginatedLocations(int pageSize, LocationCallback callback) {
         Query query = locationCollection.orderBy("name").limit(pageSize);
 
@@ -86,18 +95,10 @@ public class LocationsRepository {
                 List<Location> locations = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     try {
-                        String id = document.getId();
-                        String name = document.getString("name");
-                        String description = document.getString("description");
-                        String address = document.getString("address");
-                        String categoryId = document.getString("categoryId");
-                        String imageUrl = document.getString("imageUrl");
-                        String country = document.getString("country");
-                        double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
-                        double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
+                        Location location = document.toObject(Location.class);
 
-                        if (name != null && description != null) {
-                            locations.add(new Location(id, name, description, address, latitude, longitude, categoryId, imageUrl, country));
+                        if (location.getName() != null && location.getDescription() != null) {
+                            locations.add(location);
                         }
                     } catch (Exception e) {
                         Log.e("LocationsRepository", "Erro ao analisar o documento: " + document.getId(), e);
@@ -115,47 +116,47 @@ public class LocationsRepository {
         });
     }
 
-    // Método para calcular a distância entre dois pontos (Haversine)
-    private double haversine(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Raio da Terra em km
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
+    /**
+     * Fetches a paginated list of Locations from the Firestore database filtered by category.
+     *
+     * Retrieves a set number of locations that belong to a specific category, starting after
+     * the last retrieved document for pagination.
+     *
+     * @param categoryId The unique ID of the category to filter locations.
+     * @param pageSize   The number of locations to fetch per request.
+     * @param callback   Callback interface to handle the result or errors.
+     */
+    public void getLocationsByCategoryPaginated(String categoryId, int pageSize, LocationCallback callback) {
+        Query query = locationCollection.whereEqualTo("category_id", categoryId).limit(pageSize);
 
-    public void getLocationsByCategory(String categoryId, LocationCallback callback) {
-        locationCollection.whereEqualTo("category_id", categoryId).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        List<Location> locations = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            try {
-                                String id = document.getId();
-                                String name = document.getString("name");
-                                String description = document.getString("description");
-                                String address = document.getString("address");
-                                String categoryIdDb = document.getString("category_id");
-                                String imageUrl = document.getString("imageUrl");
-                                String country = document.getString("country");
-                                double latitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
-                                double longitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
+        if (lastDocumentSnapshot != null) {
+            query = query.startAfter(lastDocumentSnapshot);
+        }
 
-                                if (name != null && description != null) {
-                                    locations.add(new Location(id, name, description, address, latitude, longitude, categoryIdDb, imageUrl, country));
-                                }
-                            } catch (Exception e) {
-                                Log.e("LocationsRepository", "Erro ao processar localizações", e);
-                            }
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<Location> locations = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    try {
+                        Location location = document.toObject(Location.class);
+
+                        if (location.getName() != null && location.getDescription() != null) {
+                            locations.add(location);
                         }
-                        callback.onSuccess(locations);
-                    } else {
-                        callback.onFailure(task.getException());
+                    } catch (Exception e) {
+                        Log.e("LocationsRepository", "Erro ao processar localizações", e);
                     }
-                });
+                }
+
+                if (!task.getResult().isEmpty()) {
+                    lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                }
+
+                callback.onSuccess(locations);
+            } else {
+                callback.onFailure(task.getException());
+            }
+        });
     }
 
     /**

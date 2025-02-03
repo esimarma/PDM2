@@ -53,6 +53,8 @@ public class HomeFragment extends Fragment {
         setupRecyclerView(view);
 
         resetPagination();
+        loadLocations();
+
         setupSearchView(view);
     }
 
@@ -87,12 +89,9 @@ public class HomeFragment extends Fragment {
         btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
             bottomSheet.setFilterListener(categoryId -> {
-                if (categoryId.isEmpty()) {
-                    resetPagination();
-                } else {
-                    currentFilter = categoryId;
-                    loadFilteredLocations(categoryId);
-                }
+                resetPagination();
+                currentFilter = categoryId.isEmpty() ? null : categoryId;
+                loadLocations();
             });
             bottomSheet.show(getChildFragmentManager(), "FilterBottomSheet");
         });
@@ -115,11 +114,9 @@ public class HomeFragment extends Fragment {
     private void resetPagination() {
         isLastPage = false;
         isLoading = false;
-        currentFilter = null;
         locationsRepository.lastDocumentSnapshot = null;
         locationList.clear();
         locationAdapter.notifyDataSetChanged();
-        loadLocations();
     }
 
     private void loadLocations() {
@@ -127,24 +124,43 @@ public class HomeFragment extends Fragment {
 
         isLoading = true;
 
-        locationsRepository.getPaginatedLocations(PAGE_SIZE, new LocationsRepository.LocationCallback() {
-            @Override
-            public void onSuccess(List<Location> locations) {
-                if (locations.size() < PAGE_SIZE) {
-                    isLastPage = true;
+        if (currentFilter != null) {
+            locationsRepository.getLocationsByCategoryPaginated(currentFilter, PAGE_SIZE, new LocationsRepository.LocationCallback() {
+                @Override
+                public void onSuccess(List<Location> locations) {
+                    processLocations(locations);
                 }
 
-                locationList.addAll(locations);
-                locationAdapter.notifyDataSetChanged();
-                isLoading = false;
-            }
+                @Override
+                public void onFailure(Exception e) {
+                    e.printStackTrace();
+                    isLoading = false;
+                }
+            });
+        } else {
+            locationsRepository.getPaginatedLocations(PAGE_SIZE, new LocationsRepository.LocationCallback() {
+                @Override
+                public void onSuccess(List<Location> locations) {
+                    processLocations(locations);
+                }
 
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-                isLoading = false;
-            }
-        });
+                @Override
+                public void onFailure(Exception e) {
+                    e.printStackTrace();
+                    isLoading = false;
+                }
+            });
+        }
+    }
+
+    private void processLocations(List<Location> locations) {
+        if (locations.size() < PAGE_SIZE) {
+            isLastPage = true;
+        }
+
+        locationList.addAll(locations);
+        locationAdapter.notifyDataSetChanged();
+        isLoading = false;
     }
 
     private void setupSearchView(View view) {
@@ -156,18 +172,23 @@ public class HomeFragment extends Fragment {
                 return true;
             }
 
+            private String lastQuery = "";
+
             @Override
             public boolean onQueryTextChange(String newText) {
+                if (newText.equals(lastQuery)) {
+                    return true;
+                }
+
+                lastQuery = newText;
+
                 if (newText.isEmpty()) {
-                    // **Don't reset the filter, just reload filtered locations**
-                    if (currentFilter != null && !currentFilter.isEmpty()) {
-                        loadFilteredLocations(currentFilter);
-                    } else {
-                        resetPagination();
-                    }
+                    resetPagination();
+                    loadLocations();
                 } else {
                     searchLocations(newText);
                 }
+
                 return true;
             }
         });
@@ -175,63 +196,19 @@ public class HomeFragment extends Fragment {
 
     private void searchLocations(String query) {
         if (query == null || query.trim().isEmpty()) {
-            if (currentFilter != null && !currentFilter.isEmpty()) {
-                loadFilteredLocations(currentFilter); // Reload filtered locations
-            } else {
-                resetPagination();
-            }
+            resetPagination();
+            loadLocations();
             return;
         }
 
-        Log.d("SearchView", "Searching for: " + query);
-
         List<Location> filteredResults = new ArrayList<>();
-
-        // **Check if a filter is active**
-        if (currentFilter != null && !currentFilter.isEmpty()) {
-            // Search only within the filtered list
-            locationsRepository.getLocationsByCategory(currentFilter, new LocationsRepository.LocationCallback() {
-                @Override
-                public void onSuccess(List<Location> filteredLocations) {
-                    for (Location location : filteredLocations) {
-                        if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
-                                location.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                            filteredResults.add(location);
-                        }
-                    }
-
-                    Log.d("SearchView", "Found " + filteredResults.size() + " results for query: " + query);
-                    locationAdapter.updateList(filteredResults);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-        } else {
-            // No filter active, search in all locations
-            locationsRepository.getAllLocations(new LocationsRepository.LocationCallback() {
-                @Override
-                public void onSuccess(List<Location> allLocations) {
-                    for (Location location : allLocations) {
-                        if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
-                                location.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                            filteredResults.add(location);
-                        }
-                    }
-
-                    Log.d("SearchView", "Found " + filteredResults.size() + " results for query: " + query);
-                    locationAdapter.updateList(filteredResults);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    e.printStackTrace();
-                }
-            });
+        for (Location location : locationList) {
+            if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
+                    location.getDescription().toLowerCase().contains(query.toLowerCase())) {
+                filteredResults.add(location);
+            }
         }
+        locationAdapter.updateList(filteredResults);
     }
 
     private void openDetailFragment(Location location) {
@@ -240,25 +217,10 @@ public class HomeFragment extends Fragment {
         bundle.putString("locationId", location.getId());
         detailFragment.setArguments(bundle);
 
+
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private void loadFilteredLocations(String categoryId) {
-        locationsRepository.getLocationsByCategory(categoryId, new LocationsRepository.LocationCallback() {
-            @Override
-            public void onSuccess(List<Location> locations) {
-                locationList.clear();
-                locationList.addAll(locations);
-                locationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 }
