@@ -99,16 +99,14 @@ public class LocationsRepository {
                     try {
                         Location location = document.toObject(Location.class);
 
-                        // Ensure required fields are present before adding to the list
                         if (location.getName() != null && location.getDescription() != null) {
                             locations.add(location);
                         }
                     } catch (Exception e) {
-                        Log.e("LocationsRepository", "Error parsing document: " + document.getId(), e);
+                        Log.e("LocationsRepository", "Erro ao analisar o documento: " + document.getId(), e);
                     }
                 }
 
-                // Update the last document snapshot for pagination
                 if (!task.getResult().isEmpty()) {
                     lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
                 }
@@ -119,6 +117,7 @@ public class LocationsRepository {
             }
         });
     }
+
 
     /**
      * Fetches a paginated list of Locations from Firestore filtered by category.
@@ -127,43 +126,54 @@ public class LocationsRepository {
      * starting after the last retrieved document for pagination.
      *
      * @param categoryId The unique ID of the category to filter locations.
+     * @param searchQuery The search query to filter locations.
      * @param pageSize   The number of locations to fetch per request.
      * @param callback   Callback interface to handle the result or errors.
      */
-    public void getLocationsByCategoryPaginated(String categoryId, int pageSize, LocationCallback callback) {
-        Query query = locationCollection.whereEqualTo("category_id", categoryId).limit(pageSize);
+    public void getLocationsByCategoryPaginated(String categoryId, String searchQuery, int pageSize, int currentPage, LocationCallback callback) {
+        Query query = locationCollection;
 
-        if (lastDocumentSnapshot != null) {
-            query = query.startAfter(lastDocumentSnapshot);
+        if (categoryId != null && !categoryId.isEmpty()) {
+            query = query.whereEqualTo("category_id", categoryId);
         }
 
         query.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
-                List<Location> locations = new ArrayList<>();
+                List<Location> allLocations = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     try {
                         Location location = document.toObject(Location.class);
-
-                        // Ensure required fields are present before adding to the list
-                        if (location.getName() != null && location.getDescription() != null) {
-                            locations.add(location);
-                        }
+                        allLocations.add(location);
                     } catch (Exception e) {
-                        Log.e("LocationsRepository", "Error processing locations", e);
+                        Log.e("LocationsRepository", "Erro ao processar localizações", e);
                     }
                 }
 
-                // Update the last document snapshot for pagination
-                if (!task.getResult().isEmpty()) {
-                    lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                List<Location> filteredLocations = new ArrayList<>();
+                for (Location location : allLocations) {
+                    if (location.getName() != null && location.getNameEn() != null) {
+                        if (searchQuery == null || searchQuery.trim().isEmpty() ||
+                                location.getName().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                                location.getNameEn().toLowerCase().contains(searchQuery.toLowerCase())) {
+                            filteredLocations.add(location);
+                        }
+                    }
                 }
 
-                callback.onSuccess(locations);
+                filteredLocations.sort(Comparator.comparing(Location::getName));
+
+                int start = (currentPage - 1) * pageSize;
+                int end = Math.min(start + pageSize, filteredLocations.size());
+
+                List<Location> paginatedLocations = filteredLocations.subList(start, end);
+
+                callback.onSuccess(paginatedLocations);
             } else {
                 callback.onFailure(task.getException());
             }
         });
     }
+
     /**
      * Fetches a single Location by its ID from the Firestore database.
      *

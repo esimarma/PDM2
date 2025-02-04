@@ -34,8 +34,11 @@ public class HomeFragment extends Fragment {
     private LocationsRepository locationsRepository;
     // SearchView widget for searching locations by name or description
     private SearchView searchView;
-    // Stores the currently applied filter category
+
+    // Stores the currently applied filters for locations
     private String currentFilter = null;
+    private String currentSearchQuery = null;
+    private int currentPage = 1;
 
     // UI elements for the header section
     TextView headerTitle;
@@ -72,6 +75,7 @@ public class HomeFragment extends Fragment {
 
         updateMainActivity();
         setupRecyclerView(view);
+
         resetPagination();
         loadLocations();
     }
@@ -162,24 +166,39 @@ public class HomeFragment extends Fragment {
         if (isLoading || isLastPage) return;
         isLoading = true;
 
-        if (currentFilter != null) {
-            locationsRepository.getLocationsByCategoryPaginated(currentFilter, PAGE_SIZE, new LocationsRepository.LocationCallback() {
-                @Override
-                public void onSuccess(List<Location> locations) {
-                    processLocations(locations);
-                }
-                @Override
-                public void onFailure(Exception e) {
-                    e.printStackTrace();
-                    isLoading = false;
-                }
-            });
-        } else {
+        if (currentFilter != null || (currentSearchQuery != null && !currentSearchQuery.isEmpty())) {
+            locationsRepository.getLocationsByCategoryPaginated(
+                    currentFilter,
+                    currentSearchQuery,
+                    PAGE_SIZE,
+                    currentPage,
+                    new LocationsRepository.LocationCallback() {
+                        @Override
+                        public void onSuccess(List<Location> locations) {
+                            processLocations(locations);
+                            isLoading = false;
+
+                            if (locations.size() < PAGE_SIZE) {
+                                isLastPage = true;
+                            } else {
+                                currentPage++;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            e.printStackTrace();
+                            isLoading = false;
+                        }
+                    }
+            );
+        }else {
             locationsRepository.getPaginatedLocations(PAGE_SIZE, new LocationsRepository.LocationCallback() {
                 @Override
                 public void onSuccess(List<Location> locations) {
                     processLocations(locations);
                 }
+
                 @Override
                 public void onFailure(Exception e) {
                     e.printStackTrace();
@@ -208,6 +227,9 @@ public class HomeFragment extends Fragment {
     /**
      * Sets up the search view allowing users to filter locations dynamically.
      * Listens for text changes and triggers search queries accordingly.
+     * Filters locations based on the user-provided query.
+     * Matches location names against the search term.
+     * Updates the RecyclerView with filtered results.
      *
      * @param view The root view of the fragment where the SearchView is located.
      */
@@ -216,7 +238,14 @@ public class HomeFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchLocations(query); // Trigger search when user submits query
+                /*if (query == null || query.trim().isEmpty()) {
+                    currentSearchQuery = null;
+                } else {
+                    currentSearchQuery = query;
+                }
+
+                resetPagination();
+                loadLocations();*/
                 return true;
             }
 
@@ -225,41 +254,22 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.equals(lastQuery)) {
-                    return true; // Ignore redundant queries
+                    return true;
                 }
+
                 lastQuery = newText;
+
                 if (newText.isEmpty()) {
-                    resetPagination(); // Reset list if query is empty
-                    loadLocations(); // Reload all locations
+                    currentSearchQuery = null;
                 } else {
-                    searchLocations(newText); // Perform search with new text
+                    currentSearchQuery = newText;
                 }
+
+                resetPagination();
+                loadLocations();
                 return true;
             }
         });
-    }
-
-    /**
-     * Filters locations based on the user-provided query.
-     * Matches location names and descriptions against the search term.
-     * Updates the RecyclerView with filtered results.
-     *
-     * @param query The search string entered by the user.
-     */
-    private void searchLocations(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            resetPagination(); // Reset data when query is empty
-            loadLocations(); // Load all locations
-            return;
-        }
-        List<Location> filteredResults = new ArrayList<>();
-        for (Location location : locationList) {
-            if (location.getName().toLowerCase().contains(query.toLowerCase()) ||
-                    location.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                filteredResults.add(location); // Add matching locations to the list
-            }
-        }
-        locationAdapter.updateList(filteredResults); // Update UI with filtered results
     }
 
     /**
