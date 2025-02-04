@@ -663,6 +663,10 @@ public class AccountFragment extends Fragment {
                                     .commit();
                         }
                     });
+                })
+                .addOnFailureListener(e -> {
+                    // Handle incorrect password or authentication failure
+                    Toast.makeText(getContext(), getString(R.string.account_delete_failed), Toast.LENGTH_SHORT).show();
                 });
     }
     private void loadLastLoginTimestamp(TextView lastLoginTextView) {
