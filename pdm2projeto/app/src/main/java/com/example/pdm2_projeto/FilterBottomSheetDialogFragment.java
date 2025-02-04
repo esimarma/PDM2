@@ -17,42 +17,60 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FilterBottomSheetDialogFragment is a modal bottom sheet that allows users to filter locations
+ * by selecting a category from a dropdown list (Spinner).
+ */
 public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
-    private List<LocationCategory> categories = new ArrayList<>();
-    private String selectedCategoryId = "";
-    private FilterListener filterListener;
+    private List<LocationCategory> categories = new ArrayList<>(); // List to hold fetched categories
+    private String selectedCategoryId = ""; // Stores the selected category ID
+    private FilterListener filterListener; // Listener for handling filter selection events
 
+    /**
+     * Interface to communicate the selected filter back to the parent component.
+     */
     public interface FilterListener {
         void onFilterSelected(String categoryId);
     }
 
+    /**
+     * Sets the filter listener for handling user selections.
+     *
+     * @param listener The listener to receive filter selections.
+     */
     public void setFilterListener(FilterListener listener) {
         this.filterListener = listener;
     }
 
+    /**
+     * Inflates the bottom sheet layout and initializes UI components.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.locations_filter, container, false);
 
+        // Initialize UI components
         Spinner categorySpinner = view.findViewById(R.id.spinner_categories);
         Button applyButton = view.findViewById(R.id.btn_apply_filters);
+        Button btnClearFilters = view.findViewById(R.id.btn_remove_filters);
 
+        // Repository instance for fetching location categories from Firestore
         LocationCategoryRepository repository = new LocationCategoryRepository();
 
-        // Buscar categorias do Firestore
+        // Fetch categories from Firestore and populate the Spinner
         repository.getCategories(new LocationCategoryRepository.CategoryCallback() {
             @Override
             public void onSuccess(List<LocationCategory> fetchedCategories) {
                 categories = fetchedCategories;
 
-                // Converter categorias para uma lista de nomes
+                // Convert categories into a list of display names based on language preference
                 List<String> categoryNames = new ArrayList<>();
                 for (LocationCategory category : categories) {
                     String categoryName = "";
 
-                    if(getContext().getString(R.string.language).equals("en")){
+                    if (getContext().getString(R.string.language).equals("en")) {
                         categoryName = category.getDescriptionEn();
                     } else {
                         categoryName = category.getDescription();
@@ -60,44 +78,45 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
                     categoryNames.add(categoryName);
                 }
 
-                // Criar adaptador para o Spinner
+                // Create and set the adapter for the Spinner
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, categoryNames);
                 categorySpinner.setAdapter(adapter);
             }
 
             @Override
             public void onFailure(Exception e) {
+                // Display error message in case of failure
                 Toast.makeText(getContext(), "Erro ao carregar categorias", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Listener para capturar a seleção
+        // Listener to capture selected category from the Spinner
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategoryId = categories.get(position).getId(); // Pegando o ID correto
+                selectedCategoryId = categories.get(position).getId(); // Store the selected category ID
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                selectedCategoryId = "";
+                selectedCategoryId = ""; // Reset selection if nothing is selected
             }
         });
 
-        // Botão de aplicar filtro
+        // Apply button to confirm the selected filter
         applyButton.setOnClickListener(v -> {
             if (filterListener != null) {
-                filterListener.onFilterSelected(selectedCategoryId);
+                filterListener.onFilterSelected(selectedCategoryId); // Pass the selected category ID to listener
             }
-            dismiss();
+            dismiss(); // Close the bottom sheet
         });
 
-        Button btnClearFilters = view.findViewById(R.id.btn_remove_filters);
+        // Clear filter button to remove any applied filters
         btnClearFilters.setOnClickListener(v -> {
             if (filterListener != null) {
-                filterListener.onFilterSelected(""); // Enviar ID vazio para remover filtros
+                filterListener.onFilterSelected(""); // Send empty ID to indicate filter removal
             }
-            dismiss(); // Fechar o BottomSheet
+            dismiss(); // Close the bottom sheet
         });
 
         return view;

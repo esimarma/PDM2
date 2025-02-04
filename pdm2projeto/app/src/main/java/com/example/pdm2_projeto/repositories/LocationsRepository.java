@@ -16,11 +16,22 @@ import java.util.List;
 /**
  * Repository class for managing Location objects stored in Firestore.
  */
+/**
+ * Repository class for managing locations in Firestore.
+ * This class provides methods to fetch all locations, retrieve paginated results,
+ * and filter locations based on a specific category.
+ */
 public class LocationsRepository {
 
-    // Firestore collection reference for locations
+    /**
+     * Reference to the Firestore collection where location data is stored.
+     */
     private final CollectionReference locationCollection;
 
+    /**
+     * Keeps track of the last document snapshot retrieved in paginated queries.
+     * Used to determine where the next batch of results should start.
+     */
     public DocumentSnapshot lastDocumentSnapshot = null;
 
     /**
@@ -33,6 +44,7 @@ public class LocationsRepository {
 
     /**
      * Fetches all Location objects from the Firestore database.
+     * Results are ordered alphabetically by name.
      *
      * @param callback Callback interface to handle the results or errors.
      */
@@ -45,7 +57,7 @@ public class LocationsRepository {
                             try {
                                 Location location = document.toObject(Location.class);
 
-                                // Verifica campos obrigatórios antes de adicionar à lista
+                                // Ensure required fields are present before adding to the list
                                 if (location.getName() != null && location.getDescription() != null) {
                                     locations.add(location);
                                 } else {
@@ -65,10 +77,10 @@ public class LocationsRepository {
     }
 
     /**
-     * Fetches a paginated list of Locations from the Firestore database.
+     * Fetches a paginated list of Locations from Firestore.
      *
-     * Retrieves a set number of locations sorted by name, starting after the last retrieved document
-     * for pagination purposes.
+     * This method retrieves a fixed number of locations, sorted alphabetically by name,
+     * starting after the last retrieved document for pagination purposes.
      *
      * @param pageSize  The number of locations to fetch per request.
      * @param callback  Callback interface to handle the result or errors.
@@ -87,14 +99,16 @@ public class LocationsRepository {
                     try {
                         Location location = document.toObject(Location.class);
 
+                        // Ensure required fields are present before adding to the list
                         if (location.getName() != null && location.getDescription() != null) {
                             locations.add(location);
                         }
                     } catch (Exception e) {
-                        Log.e("LocationsRepository", "Erro ao analisar o documento: " + document.getId(), e);
+                        Log.e("LocationsRepository", "Error parsing document: " + document.getId(), e);
                     }
                 }
 
+                // Update the last document snapshot for pagination
                 if (!task.getResult().isEmpty()) {
                     lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
                 }
@@ -107,10 +121,10 @@ public class LocationsRepository {
     }
 
     /**
-     * Fetches a paginated list of Locations from the Firestore database filtered by category.
+     * Fetches a paginated list of Locations from Firestore filtered by category.
      *
-     * Retrieves a set number of locations that belong to a specific category, starting after
-     * the last retrieved document for pagination.
+     * This method retrieves a set number of locations that belong to a specific category,
+     * starting after the last retrieved document for pagination.
      *
      * @param categoryId The unique ID of the category to filter locations.
      * @param pageSize   The number of locations to fetch per request.
@@ -130,14 +144,16 @@ public class LocationsRepository {
                     try {
                         Location location = document.toObject(Location.class);
 
+                        // Ensure required fields are present before adding to the list
                         if (location.getName() != null && location.getDescription() != null) {
                             locations.add(location);
                         }
                     } catch (Exception e) {
-                        Log.e("LocationsRepository", "Erro ao processar localizações", e);
+                        Log.e("LocationsRepository", "Error processing locations", e);
                     }
                 }
 
+                // Update the last document snapshot for pagination
                 if (!task.getResult().isEmpty()) {
                     lastDocumentSnapshot = task.getResult().getDocuments().get(task.getResult().size() - 1);
                 }
@@ -148,7 +164,6 @@ public class LocationsRepository {
             }
         });
     }
-
     /**
      * Fetches a single Location by its ID from the Firestore database.
      *

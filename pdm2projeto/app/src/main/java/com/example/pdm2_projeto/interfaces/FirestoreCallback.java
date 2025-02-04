@@ -1,6 +1,24 @@
 package com.example.pdm2_projeto.interfaces;
 
+/**
+ * Generic interface for handling Firestore asynchronous operations.
+ * Provides callback methods for success and failure scenarios.
+ *
+ * @param <T> The type of data expected on success.
+ */
 public interface FirestoreCallback<T> {
-    void onSuccess(T result); // Método chamado em caso de sucesso
-    void onFailure(Exception e); // Método chamado em caso de falha
+
+    /**
+     * Called when the Firestore operation is successful.
+     *
+     * @param result The result of the Firestore operation.
+     */
+    void onSuccess(T result);
+
+    /**
+     * Called when the Firestore operation fails.
+     *
+     * @param e The exception describing the failure.
+     */
+    void onFailure(Exception e);
 }

@@ -15,14 +15,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Repository class for managing user-related operations.
+ * Repository class for managing user-related operations in Firestore.
+ * This class provides methods to register, retrieve, update, delete users, and manage profile pictures.
  */
 public class UsersRepository {
+
+    /**
+     * Firebase Authentication instance to manage user authentication.
+     */
     private final FirebaseAuth auth;
+
+    /**
+     * Firestore database instance to manage user data in Firestore.
+     */
     private final FirebaseFirestore db;
+
+    /**
+     * Firebase Storage instance to manage profile picture uploads.
+     */
     private final FirebaseStorage storage;
 
-    // Initializes Firebase Auth and Firestore
+    /**
+     * Constructor initializes Firebase Auth, Firestore, and Firebase Storage instances.
+     */
     public UsersRepository() {
         this.auth = FirebaseAuth.getInstance();
         this.db = FirebaseFirestore.getInstance();
@@ -35,7 +50,7 @@ public class UsersRepository {
      * @param user     The User model to be saved.
      * @param callback Callback to indicate the success or failure of the operation.
      */
-    public void registerUser(User user, FirestoreCallback callback) {
+    public void registerUser(User user, FirestoreCallback<Void> callback) {
         db.collection("users")
                 .document(user.getId())
                 .set(user) // Uses the User model directly
@@ -48,7 +63,7 @@ public class UsersRepository {
      *
      * @param callback Callback to return the user or an error.
      */
-    public void getCurrentUser(FirestoreCallback callback) {
+    public void getCurrentUser(FirestoreCallback<User> callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
             callback.onFailure(new Exception("No authenticated user."));
@@ -61,7 +76,6 @@ public class UsersRepository {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // Converts the document to a User object
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null) {
                             user.setId(userId);
@@ -77,7 +91,7 @@ public class UsersRepository {
     /**
      * Returns the currently authenticated user in Firebase Auth.
      *
-     * @return Authenticated user or null.
+     * @return Authenticated user or null if not logged in.
      */
     public FirebaseUser getAuthenticatedUser() {
         return auth.getCurrentUser();
@@ -89,13 +103,12 @@ public class UsersRepository {
      * @param userId   The unique ID of the user to be deleted.
      * @param callback Callback to indicate the success or failure of the operation.
      */
-    public void deleteUser(String userId, FirestoreCallback callback) {
-        FirebaseFirestore.getInstance()
-                .collection("users") // Accesses the "users" collection in Firestore
-                .document(userId) // Specifies the document to delete (by user ID)
-                .delete() // Deletes the document from Firestore
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null)) // If successful, triggers callback
-                .addOnFailureListener(callback::onFailure); // If failed, triggers callback with an error
+    public void deleteUser(String userId, FirestoreCallback<Void> callback) {
+        db.collection("users")
+                .document(userId)
+                .delete()
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
     }
 
     /**
@@ -104,21 +117,21 @@ public class UsersRepository {
      * @param imageUri The Uri of the image to upload.
      * @param callback Callback to indicate success or failure.
      */
-    public void uploadProfilePicture(Uri imageUri, FirestoreCallback callback) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    public void uploadProfilePicture(Uri imageUri, FirestoreCallback<String> callback) {
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
-            callback.onFailure(new Exception("Usuário não autenticado."));
+            callback.onFailure(new Exception("No authenticated user."));
             return;
         }
 
         String userId = currentUser.getUid();
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_pictures/" + userId + ".jpg");
+        StorageReference storageRef = storage.getReference().child("profile_pictures/" + userId + ".jpg");
 
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
                             String downloadUrl = uri.toString();
-                            FirebaseFirestore.getInstance().collection("users")
+                            db.collection("users")
                                     .document(userId)
                                     .update("profilePictureUrl", downloadUrl)
                                     .addOnSuccessListener(aVoid -> callback.onSuccess(downloadUrl))
@@ -133,7 +146,7 @@ public class UsersRepository {
      * @param profilePictureUrl The new profile picture URL (null to remove the picture).
      * @param callback Callback to indicate the success or failure of the operation.
      */
-    public void updateProfilePicture(String profilePictureUrl, FirestoreCallback callback) {
+    public void updateProfilePicture(String profilePictureUrl, FirestoreCallback<Void> callback) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
             callback.onFailure(new Exception("No authenticated user."));
@@ -141,15 +154,23 @@ public class UsersRepository {
         }
 
         String userId = currentUser.getUid();
-
         db.collection("users")
                 .document(userId)
                 .update("profilePictureUrl", profilePictureUrl)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }
+
+    /**
+     * Updates user details such as name and email in Firestore.
+     *
+     * @param userId   The ID of the user to be updated.
+     * @param newName  The new name for the user.
+     * @param newEmail The new email for the user.
+     * @param callback Callback to indicate the success or failure of the operation.
+     */
     public void updateUserDetails(String userId, String newName, String newEmail, FirestoreCallback<Void> callback) {
-        DocumentReference userRef = db.collection("users").document(userId); // Use 'db' instead of 'firestore'
+        DocumentReference userRef = db.collection("users").document(userId);
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", newName);
@@ -160,6 +181,12 @@ public class UsersRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Fetches a user by their unique ID from Firestore.
+     *
+     * @param userId   The ID of the user to retrieve.
+     * @param callback Callback to return the user or an error.
+     */
     public void getUserById(String userId, FirestoreCallback<User> callback) {
         db.collection("users")
                 .document(userId)
