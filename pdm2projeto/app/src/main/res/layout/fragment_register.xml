@@ -111,8 +111,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Register Button -->
-
-    <!-- Already Have Account Link -->
     <Button
         android:id="@+id/register_button"
         android:layout_width="0dp"
@@ -127,6 +125,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/show_password" />
 
+    <!-- Already Have Account Text -->
     <TextView
         android:id="@+id/login_ask"
         android:layout_width="wrap_content"

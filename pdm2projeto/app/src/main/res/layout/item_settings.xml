@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:padding="12dp">
 
+    <!-- Setting Option -->
     <TextView
         android:id="@+id/setting_option_text"
         android:layout_width="wrap_content"

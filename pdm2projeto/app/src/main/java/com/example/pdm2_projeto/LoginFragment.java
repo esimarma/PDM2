@@ -73,6 +73,9 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    /*
+    * Hides the top header for the LoginFragment.
+     */
     private void hideTopHeader() {
         // Hide the top header for LoginFragment
         View topHeader = requireActivity().findViewById(R.id.top_header);
@@ -81,6 +84,10 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    /*
+    * Configures the back button to navigate back to the ProfileFragment.
+    * @param backButton The back button to configure.
+     */
     private void configureBackButton(ImageView backButton) {
         backButton.setOnClickListener(v -> {
             Fragment profileFragment = new ProfileFragment();
@@ -91,6 +98,10 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /**
+    * Configures the "Show Password" checkbox to toggle password visibility.
+    * @param showPasswordCheckbox The checkbox to toggle password visibility.
+     */
     private void configureShowPasswordCheckbox(CheckBox showPasswordCheckbox) {
         showPasswordCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             passwordField.setInputType(isChecked
@@ -100,6 +111,9 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /*
+    * Configures the login button to handle user login.
+     */
     private void configureLoginButton() {
         loginButton.setOnClickListener(v -> {
             String email = emailField.getText().toString().trim();
@@ -120,6 +134,10 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /**
+    * configures the register button to navigate to the RegisterFragment.
+    * @param registerButton The register button to configure.
+     */
     private void configureRegisterButton(TextView registerButton) {
         registerButton.setOnClickListener(v -> {
             Fragment registerFragment = new RegisterFragment();
@@ -131,6 +149,9 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /*
+    * Show tha password reset dialog.
+     */
     private void showPasswordResetDialog() {
         EditText resetEmail = new EditText(requireContext());
         resetEmail.setHint(getString(R.string.reset_email_hint));
@@ -163,6 +184,9 @@ public class LoginFragment extends Fragment {
         passwordResetDialog.show();
     }
 
+    /*
+    * Save the login timestamp to the room database.
+    */
     private void saveLoginTimestamp() {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -170,7 +194,11 @@ public class LoginFragment extends Fragment {
         }).start();
     }
 
-
+    /**
+    * Validates the user inputs.
+    * @param email The email input.
+    * @param password The password input.
+     */
     private boolean validateInputs(String email, String password) {
         if (email.isEmpty()) {
             showToast(getString(R.string.invalid_email));
@@ -191,7 +219,7 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
-    /**
+    /*
      * Fetches user data from Firestore after successful login.
      */
     private void fetchUserData() {
@@ -217,20 +245,30 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /**
+    * Show a toast message.
+    * @param message The message to be displayed in the toast.
+     */
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /*
+    * Hide the top header when the fragment is visible.
+     */
     @Override
     public void onResume() {
         super.onResume();
-        hideTopHeader(); // Ensure the header is hidden every time the fragment is visible
+        hideTopHeader();
     }
 
+    /*
+    * Show the top header again when leaving the LoginFragment
+     */
     @Override
     public void onPause() {
         super.onPause();
-        // Show the top header again when leaving the LoginFragment
+
         View topHeader = requireActivity().findViewById(R.id.top_header);
         if (topHeader != null) {
             topHeader.setVisibility(View.VISIBLE);

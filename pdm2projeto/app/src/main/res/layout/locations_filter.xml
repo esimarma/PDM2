@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,6 +15,7 @@
         android:gravity="center"
         android:paddingBottom="8dp"/>
 
+    <!-- Categories Spinner -->
     <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/spinner_categories"
         android:layout_width="match_parent"
@@ -27,6 +29,7 @@
         android:layout_marginTop="16dp"
         android:gravity="center">
 
+        <!-- Apply Filters Button -->
         <Button
             android:id="@+id/btn_apply_filters"
             android:layout_width="0dp"
@@ -37,6 +40,7 @@
             android:backgroundTint="?attr/colorSecondaryContainer"
             android:layout_marginEnd="8dp"/>
 
+        <!-- Remove Filters Button -->
         <Button
             android:id="@+id/btn_remove_filters"
             android:layout_width="0dp"

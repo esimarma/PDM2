@@ -32,6 +32,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
+/**
+ * Fragment responsible for displaying the details of a location.
+ */
 public class LocationDetailFragment extends Fragment {
 
     // UI components
@@ -46,7 +49,6 @@ public class LocationDetailFragment extends Fragment {
     private double latitude, longitude;
     private String name;
     private String address;
-    private String country;
     private String imageUrl;
     private String locationId;
 
@@ -55,12 +57,18 @@ public class LocationDetailFragment extends Fragment {
     private FavoritesRepository favoritesRepository;
     private CommentsRepository commentsRepository;
 
+    /**
+     * Inflates the layout for this fragment.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_location_detail, container, false);
     }
 
+    /**
+     * Called after the view is created. Initializes UI components and loads data.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -80,6 +88,9 @@ public class LocationDetailFragment extends Fragment {
         loadCommentsFromFirestore();
     }
 
+    /**
+     * Updates the header title and visibility of the logo.
+     */
     private void updateHeader() {
         TextView headerTitle = requireActivity().findViewById(R.id.header_title);
         if (headerTitle != null) {
@@ -91,7 +102,10 @@ public class LocationDetailFragment extends Fragment {
         }
     }
 
-    // Initializes UI components by binding them to layout elements
+    /**
+     * Initializes UI components by binding them to layout elements.
+     * @param view The root view of the layout.
+     */
     private void initializeUI(View view) {
         locationName = view.findViewById(R.id.location_name);
         locationCountry = view.findViewById(R.id.location_country);
@@ -105,14 +119,18 @@ public class LocationDetailFragment extends Fragment {
         recyclerComments = view.findViewById(R.id.recycler_comments);
     }
 
-    // Initializes repositories to manage location, favorites, and comments
+    /**
+     * Initializes repositories to manage location, favorites, and comments.
+     */
     private void initializeRepositories() {
         locationsRepository = new LocationsRepository();
         favoritesRepository = new FavoritesRepository();
         commentsRepository = new CommentsRepository();
     }
 
-    // Retrieves arguments passed to the fragment and fetches necessary data
+    /**
+     * Retrieves arguments passed to the fragment and fetches necessary data.
+     */
     private void loadArguments() {
         Bundle args = getArguments();
         if (args != null) {
@@ -126,7 +144,9 @@ public class LocationDetailFragment extends Fragment {
         }
     }
 
-    // Sets event listeners for UI components
+    /**
+     * Sets event listeners for UI components.
+     */
     private void setClickListeners() {
         favoriteIcon.setOnClickListener(v -> toggleFavorite());
         btnOpenMap.setOnClickListener(v -> openMapFragment());
@@ -150,7 +170,9 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Checks if the current location is marked as a favorite
+    /*
+    * Checks if the current location is marked as a favorite
+    */
     private void checkIfLocationIsFavorited() {
         if (locationId == null) return;
         favoritesRepository.isLocationFavorited(locationId)
@@ -158,12 +180,17 @@ public class LocationDetailFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e("Firestore", "Error checking favorite", e));
     }
 
-    // Updates the favorite icon UI based on the favorite status
+    /*
+    * Updates the favorite icon UI based on the favorite status
+    * @param isFavorite boolean indicating if the location is a favorite
+    */
     private void updateFavoriteIcon(boolean isFavorite) {
         favoriteIcon.setImageResource(isFavorite ? R.drawable.ic_favorite_checked : R.drawable.ic_favorite_unchecked);
     }
 
-    // Toggles favorite status for the location
+    /*
+    * Toggles the favorite status of the location
+     */
     private void toggleFavorite() {
         if (locationId == null) return;
         favoritesRepository.isLocationFavorited(locationId)
@@ -177,13 +204,16 @@ public class LocationDetailFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e("Firestore", "Error checking favorite", e));
     }
 
-    // Removes the location from favorites
+    /*
+    * Removes the location from favorites
+    */
     private void removeFavorite() {
-        favoritesRepository.removeFavorite(locationId, new FirestoreCallback<Void>() {
+        favoritesRepository.removeFavorite(locationId, new FirestoreCallback<>() {
             @Override
             public void onSuccess(Void result) {
                 updateFavoriteIcon(false);
             }
+
             @Override
             public void onFailure(Exception e) {
                 Log.e("Firestore", "Error removing favorite", e);
@@ -191,7 +221,9 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Adds the location to favorites
+    /*
+    * Adds the location to favorites
+     */
     private void addFavorite() {
         favoritesRepository.addFavorite(locationId, new FirestoreCallback<Void>() {
             @Override
@@ -205,7 +237,10 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Save comment to Firestore
+    /*
+    * Adds a new comment to the Firestore database
+    * @param commentText The text of the comment to be added
+     */
     private void addCommentToFirestore(String commentText) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Toast.makeText(getContext(), "You need an account to comment", Toast.LENGTH_SHORT).show();
@@ -229,6 +264,10 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
+    /*
+    * Deletes a comment from the Firestore database
+    * @param comment The comment to be deleted
+    */
     private void deleteCommentFromFirestore(Comment comment) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Toast.makeText(getContext(), "You need an account to delete comments", Toast.LENGTH_SHORT).show();
@@ -242,7 +281,7 @@ public class LocationDetailFragment extends Fragment {
             return;
         }
 
-        commentsRepository.deleteComment(comment, new FirestoreCallback<Void>() {
+        commentsRepository.deleteComment(comment, new FirestoreCallback<>() {
             @Override
             public void onSuccess(Void result) {
                 Toast.makeText(getContext(), "Comment deleted", Toast.LENGTH_SHORT).show();
@@ -257,9 +296,11 @@ public class LocationDetailFragment extends Fragment {
     }
 
 
-    // Load comments from Firestore
+    /*
+    * Loads comments from Firestore and updates the UI
+     */
     private void loadCommentsFromFirestore() {
-        commentsRepository.getCommentsByLocation(locationId, new FirestoreCallback<List<Comment>>() {
+        commentsRepository.getCommentsByLocation(locationId, new FirestoreCallback<>() {
             @Override
             public void onSuccess(List<Comment> comments) {
                 recyclerComments.setAdapter(new CommentAdapter(getContext(), comments, comment -> deleteCommentFromFirestore(comment)));
@@ -273,7 +314,10 @@ public class LocationDetailFragment extends Fragment {
     }
 
 
-    // Fetches location details and updates UI
+    /**
+     * Fetches location details from Firestore and updates the UI.
+     * @param locationId The ID of the location to fetch details for
+     */
     private void fetchLocationDetails(String locationId) {
         locationsRepository.getLocationById(locationId, new LocationsRepository.SingleLocationCallback() {
             @Override
@@ -287,10 +331,14 @@ public class LocationDetailFragment extends Fragment {
         });
     }
 
-    // Updates UI components with retrieved location details
+    /*
+    * Updates UI components with retrieved location details
+    * @param location The location object containing details to be displayed
+     */
     private void updateUIWithLocationDetails(Location location) {
         address = location.getAddress();
 
+        String country;
         if(getContext().getString(R.string.language).equals("en")){
             name = location.getNameEn();
             country = location.getCountryEn();
@@ -312,6 +360,9 @@ public class LocationDetailFragment extends Fragment {
         Glide.with(requireContext()).load(imageUrl).into(locationImage);
     }
 
+    /*
+    * Opens the map fragment with location details
+     */
     private void openMapFragment() {
         Fragment mapFragment = new MapFragment();
         Bundle bundle = new Bundle();

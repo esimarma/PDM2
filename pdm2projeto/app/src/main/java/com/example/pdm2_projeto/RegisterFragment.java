@@ -15,8 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pdm2_projeto.interfaces.FirestoreCallback;
 import com.example.pdm2_projeto.models.User;
@@ -24,8 +22,7 @@ import com.example.pdm2_projeto.repositories.UsersRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.Timestamp;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment responsible for registering new users.
@@ -34,6 +31,9 @@ public class RegisterFragment extends Fragment {
 
     private UsersRepository usersRepository;
 
+    /**
+     * Inflates the layout and initializes UI components.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -65,7 +65,7 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Hides the top header specific to this fragment.
+     * Hides the header and footer elements of the UI.
      */
     private void hideHeaderAndFooter() {
         View topHeader = requireActivity().findViewById(R.id.top_header);
@@ -79,7 +79,8 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Configures the back button to return to the previous fragment.
+     * Configures the back button to navigate to the previous fragment.
+     * @param backButton ImageView representing the back button.
      */
     private void configureBackButton(ImageView backButton) {
         backButton.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
@@ -87,6 +88,9 @@ public class RegisterFragment extends Fragment {
 
     /**
      * Configures the "Show Password" checkbox to toggle password visibility.
+     * @param showPassword Checkbox to show or hide password input.
+     * @param passwordField EditText for password input.
+     * @param confirmPasswordField EditText for confirming the password.
      */
     private void configureShowPasswordCheckbox(CheckBox showPassword, EditText passwordField, EditText confirmPasswordField) {
         showPassword.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -104,7 +108,12 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Configures the register button to handle user registration logic.
+     * Configures the register button to handle user registration.
+     * @param registerButton Button to initiate registration.
+     * @param nameField EditText for user's name.
+     * @param emailField EditText for user's email.
+     * @param passwordField EditText for password input.
+     * @param confirmPasswordField EditText for confirming the password.
      */
     private void configureRegisterButton(Button registerButton, EditText nameField, EditText emailField, EditText passwordField, EditText confirmPasswordField) {
         registerButton.setOnClickListener(v -> {
@@ -123,6 +132,11 @@ public class RegisterFragment extends Fragment {
 
     /**
      * Validates user input fields for registration.
+     * @param name User's name.
+     * @param email User's email.
+     * @param password User's password.
+     * @param confirmPassword Confirmation password.
+     * @return True if input is valid, false otherwise.
      */
     private boolean validateInputFields(String name, String email, String password, String confirmPassword) {
         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -139,24 +153,18 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Handles user registration using Firebase authentication.
+     * Registers a new user using Firebase authentication.
+     * @param name User's name.
+     * @param email User's email.
+     * @param password User's password.
      */
     private void registerUser(String name, String email, String password) {
         FirebaseAuth.getInstance()
                 .createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
-
-                    // Firestore Timestamp (instead of System.currentTimeMillis())
                     Timestamp createdAt = Timestamp.now();
-
-                    String userId = authResult.getUser().getUid();
-                    User user = new User(
-                            userId,
-                            name,
-                            email,
-                            null,
-                            createdAt
-                    );
+                    String userId = Objects.requireNonNull(authResult.getUser()).getUid();
+                    User user = new User(userId, name, email, null, createdAt);
 
                     usersRepository.registerUser(user, new FirestoreCallback() {
                         @Override
@@ -176,6 +184,7 @@ public class RegisterFragment extends Fragment {
 
     /**
      * Configures the login text to navigate to the login screen.
+     * @param loginText TextView that navigates to login screen.
      */
     private void configureLoginText(TextView loginText) {
         loginText.setOnClickListener(v -> navigateToLogin());
@@ -189,7 +198,8 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Displays a toast message to the user.
+     * Displays a toast message.
+     * @param message The message to be displayed.
      */
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();

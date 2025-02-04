@@ -42,6 +42,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LocationsRepository locationRepository;
     private final HashMap<Marker, LocationInfo> markerData = new HashMap<>();
 
+    // Inner class to store location information
     static class LocationInfo {
         String title;
         String address;
@@ -54,11 +55,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /*
+    * Called when the view is created.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
+    /*
+    * Called when the view is created.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -104,10 +111,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+    * Callback method called when the map is ready.
+    * @param googleMap The GoogleMap instance.
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
+        // Check if location permissions are granted
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -117,7 +129,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
 
-        // Verifica se há argumentos (localização clicada)
+        // Check if there are arguments (clicked location)
         Bundle bundle = getArguments();
         if (bundle != null) {
             String locationName = bundle.getString("locationName");
@@ -134,21 +146,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 
             if (marker != null) {
-                markerData.put(marker, new LocationInfo(locationName, address, imageUrl)); //Ensure markerData contains the clicked marker
+                markerData.put(marker, new LocationInfo(locationName, address, imageUrl)); // Ensure markerData contains the clicked marker
             }
 
-            // Move a câmera para a localização especificada
+            // Move the camera to the specified location
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 15));
             marker.showInfoWindow();
         } else {
-            // Caso contrário, usa a localização do utilizador
+            // Otherwise, use the user's location
             getUserLocation();
         }
 
-        // Carrega outras localizações, como as do Firestore
+        // Load other locations, such as those from Firestore
         fetchLocationsFromFirestore();
     }
 
+    /*
+    * Fetches locations from Firestore and adds them to the map.
+     */
     private void getUserLocation() {
         // Check if location permission is granted
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -186,12 +201,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /*
+    * Requests location permission from the user.
+    */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(requireActivity(),
                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
                 1);
     }
 
+    /*
+    * Handles the result of the location permission request.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -203,10 +224,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /*
+    * Displays a toast message.
+     */
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /*
+    * Fetches locations from Firestore and adds them to the map.
+     */
     private void fetchLocationsFromFirestore() {
         locationRepository.getAllLocations(new LocationsRepository.LocationCallback() {
             @Override
@@ -246,6 +273,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
+    /*
+    * Handles the click event on a marker.
+     */
     class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private final View mWindow;
 
@@ -288,6 +318,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     });
         }
 
+        /**
+        * Returns the custom InfoWindow view for the given marker.
+        * @param marker The marker for which to get the InfoWindow view.
+         */
         @Override
         public View getInfoWindow(@NonNull Marker marker) {
             // Prevents showing an empty info window for the user’s location
@@ -299,6 +333,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return mWindow;
         }
 
+        /*
+        * Returns null since we're using a custom InfoWindow view.
+         */
         @Override
         public View getInfoContents(@NonNull Marker marker) {
             return null;

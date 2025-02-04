@@ -22,13 +22,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Carregar idioma salvo (ou usar o idioma do sistema como padrão)
+        // Load language preference from SharedPreferences
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         String languageCode = preferences.getString("language_preference", Locale.getDefault().getLanguage());
-
-        // Aplicar o idioma antes de carregar o layout
+        // Set the language preference
         setLocale(languageCode);
 
+        // Set the content view
         setContentView(R.layout.activity_main);
         setContentView(R.layout.activity_main);
 
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(new HomeFragment(), false); // Show bottom navigation by default
         }
 
+        // Set click listener for bottom navigation
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
 
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        // Set click listener for menu icon
         ImageView settingsButton = this.findViewById(R.id.menu_icon);
         if (settingsButton != null) {
             settingsButton.setOnClickListener(v -> {
@@ -94,13 +96,10 @@ public class MainActivity extends AppCompatActivity {
         loadFragment(new LoginFragment(), true); // Hide bottom navigation for LoginFragment
     }
 
-    /**
-     * Replaces the current fragment with the RegisterFragment and hides the bottom navigation bar.
+    /*
+    * Sets the locale of the application to the specified language code.
+    * @param languageCode The language code to set the locale to.
      */
-    public void showRegisterFragment() {
-        loadFragment(new RegisterFragment(), true); // Hide bottom navigation for RegisterFragment
-    }
-
     private void setLocale(String languageCode) {
         Locale locale = new Locale(languageCode);
         Locale.setDefault(locale);

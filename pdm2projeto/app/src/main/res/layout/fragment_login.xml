@@ -45,6 +45,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Email Field -->
     <EditText
         android:id="@+id/email_field"
         android:layout_width="0dp"
@@ -58,6 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profile_logo" />
 
+    <!-- Password Field -->
     <EditText
         android:id="@+id/password_field"
         android:layout_width="0dp"
@@ -107,7 +109,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- "Ainda não tem conta?" Text -->
+    <!-- dont have account Text -->
     <TextView
         android:id="@+id/text_have_account"
         android:layout_width="wrap_content"
@@ -120,7 +122,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <!-- "Criar conta" Button -->
+    <!-- "Create account" Button -->
     <TextView
         android:id="@+id/button_register"
         android:layout_width="wrap_content"

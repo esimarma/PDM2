@@ -40,6 +40,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+                <!-- Location Name -->
                 <TextView
                     android:id="@+id/location_name"
                     android:layout_width="wrap_content"
@@ -48,6 +49,7 @@
                     android:textSize="16sp"
                     android:textColor="?attr/colorOnBackground"/>
 
+                <!-- Location Country -->
                 <TextView
                     android:id="@+id/location_country"
                     android:layout_width="wrap_content"
@@ -57,6 +59,7 @@
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 
+            <!-- Favorite Icon -->
             <ImageView
                 android:id="@+id/favorite_icon"
                 android:layout_width="wrap_content"

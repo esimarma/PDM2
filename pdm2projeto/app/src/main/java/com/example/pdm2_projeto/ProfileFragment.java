@@ -25,7 +25,6 @@ import com.example.pdm2_projeto.models.User;
 import com.example.pdm2_projeto.repositories.FavoritesRepository;
 import com.example.pdm2_projeto.repositories.LocationsRepository;
 import com.example.pdm2_projeto.repositories.UsersRepository;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
@@ -70,6 +69,36 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Initializes views and sets up click listeners for buttons and navigation.
+     * @param view The root view of the fragment.
+     */
+    private void initializeViews(View view) {
+        loggedOutContainer = view.findViewById(R.id.logged_out_container);
+        loggedInContainer = view.findViewById(R.id.logged_in_container);
+        welcomeText = view.findViewById(R.id.welcome_text);
+
+        // Ensure bottom navigation and top header are visible
+        setNavigationAndHeaderVisibility();
+
+        // Update the header title
+        updateHeader();
+
+        // Set up navigation for settings button
+        usersRepository = new UsersRepository();
+
+        // Set up navigation for login and register actions
+        setupAuthenticationNavigation(view);
+
+        // Find the profile logo and add click listener
+        ImageView profileLogo = view.findViewById(R.id.profile_logo);
+        profileLogo.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
+
+    }
+
+    /*
+    * Load user favorites from Firestore and update the UI
+     */
     private void loadFavorites() {
         favoritesRepository.getUserFavorites(new FavoritesRepository.FavoritesCallback() {
             @Override
@@ -99,6 +128,10 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+    * Open the location detail fragment for the given location
+    * @param location The location to open the detail fragment for
+     */
     private void openDetailFragment(Location location) {
         Fragment detailFragment = new LocationDetailFragment();
         Bundle bundle = new Bundle();
@@ -111,31 +144,6 @@ public class ProfileFragment extends Fragment {
                 .commit();
     }
 
-    /**
-     * Initializes views and sets up click listeners for buttons and navigation.
-     */
-    private void initializeViews(View view) {
-        loggedOutContainer = view.findViewById(R.id.logged_out_container);
-        loggedInContainer = view.findViewById(R.id.logged_in_container);
-        welcomeText = view.findViewById(R.id.welcome_text);
-
-        // Ensure bottom navigation and top header are visible
-        setNavigationAndHeaderVisibility();
-
-        // Update the header title
-        updateHeader();
-
-        // Set up navigation for settings button
-        usersRepository = new UsersRepository();
-
-        // Set up navigation for login and register actions
-        setupAuthenticationNavigation(view);
-
-        // Find the profile logo and add click listener
-        ImageView profileLogo = view.findViewById(R.id.profile_logo);
-        profileLogo.setOnClickListener(v -> navigateToFragment(new AccountFragment()));
-
-    }
 
     /**
      * Ensures the bottom navigation bar and top header are visible.
@@ -156,16 +164,6 @@ public class ProfileFragment extends Fragment {
         View headerLogo = requireActivity().findViewById(R.id.app_icon);
         if (headerLogo != null) {
             headerLogo.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Sets up the settings button to navigate to the SettingsFragment.
-     */
-    private void setupSettingsButton() {
-        ImageView settingsButton = requireActivity().findViewById(R.id.menu_icon);
-        if (settingsButton != null) {
-            settingsButton.setOnClickListener(v -> navigateToFragment(new SettingsFragment()));
         }
     }
 
@@ -256,10 +254,12 @@ public class ProfileFragment extends Fragment {
         loggedInContainer.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
     }
 
+    /*
+    * Ensures the top header is visible when this fragment is active.
+     */
     @Override
     public void onResume() {
         super.onResume();
-        // Ensure the top header is visible when this fragment is active
         setNavigationAndHeaderVisibility();
     }
 }
