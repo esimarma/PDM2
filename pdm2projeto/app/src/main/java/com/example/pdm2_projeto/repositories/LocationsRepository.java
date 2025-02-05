@@ -14,9 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Repository class for managing Location objects stored in Firestore.
- */
-/**
  * Repository class for managing locations in Firestore.
  * This class provides methods to fetch all locations, retrieve paginated results,
  * and filter locations based on a specific category.

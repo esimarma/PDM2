@@ -148,7 +148,13 @@ public class LocationDetailFragment extends Fragment {
      * Sets event listeners for UI components.
      */
     private void setClickListeners() {
-        favoriteIcon.setOnClickListener(v -> toggleFavorite());
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            favoriteIcon.setOnClickListener(v -> toggleFavorite());
+        } else {
+            favoriteIcon.setVisibility(View.GONE); // Hide favorite icon if user is not logged in
+        }
+
         btnOpenMap.setOnClickListener(v -> openMapFragment());
 
         btnAddComment.setOnClickListener(v -> {
