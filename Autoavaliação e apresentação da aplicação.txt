@@ -1,0 +1,95 @@
+Autoavaliação e apresentação da aplicação
+
+1. Apresentação da Aplicação:
+
+A aplicação que decidimos desenvolver é uma aplicação de turismo que permite aos utilizadores:
+- Criar, atualizar e apagar contas.
+- Procurar locais turísticos.
+- Filtrar a pesquisa desses locais.
+- Selecionar locais como favoritos.
+- Comentar sobre os locais turísticos, como também apagar os comentários.
+- Visualizar os locais turísticos num mapa implementado na app.
+- Utilizar a aplicação tanto em Português como em Inglês.
+- Utilizar modo claro e modo escuro na mesma.
+
+Integramos na aplicação:
+- RecyclerViews para organizar e apresentar os comentários dos utilizadores, assim como para apresentar as localizações no Ecrã "Home" e nos "Favoritos".
+- Room Database para armazenar informações de login do user.
+- Firebase firestore para armazenamento de dados de utilizadores (criação de conta), para o armazenamento das localizações e das categorias, assim como comentários feitos pelos utilizadores e as suas localizações favoritas.
+- GoogleMap, para exibir e interagir com um mapa dinâmico, permitindo visualizar a localização do utilizador e os locais armazenados no Firestore.
+- HashMap, para associar marcadores no mapa a informações detalhadas sobre cada local, incluindo nome, endereço e imagem.
+- Navegação baseada em Fragments, utilizando um "BottomNavigationView" para alternar entre os ecrãs "Home", "Perfil" e "Mapa", e a BackStack para permitir a navegação entre fragmentos sem perder o histórico.
+
+
+2. Autoavaliação:
+
+Requisitos:
+
+Req. 1 - Apreciação geral da aplicação (0 a 4,0 valores) 
+- Autoavaliação: 3,5 valores
+Tivemos como objetivo criar uma aplicação que fosse robusta, funcional e que a sua arquitetura fosse bem organizada para criar uma aplicação dinâmica. Mesmo sendo uma aplicação complexa, podia ter mais funcionalidades incluídas.
+
+
+Req. 2 - Interface com o utilizador (0 a 4,0)  
+- Autoavaliação: 4 valores
+A aplicação apresenta uma grande qualidade nas suas interfaces que foram desenhadas e programadas para facilitarem a experiência do utilizador, usamos fragments para a navegação dos ecrãs da aplicação e usamos RecyclerViews para tornar a navegação dos ecrãs o mais fluido possível.
+
+
+Req.3 - WebService (0 a 3,0) 
+- Autoavaliação: 3 valores
+Usamos Firebase Authentication e Firestore para a criação e autenticação dos utilizadores, assim como a criação de comentários, favoritos e para o armazenamento das localizações turísticas. Tambem foi utilizado o Google Maps SDK for Android para criação e gestão do mapa
+
+Req. 4 - Base de dados Room (0 a 3,0 valores) 
+- Autoavaliação: 2 valores
+Implementamos corretamente a Room Database para a verificação do ultimo login realizado por aquele utilizador naquele dispositivo. Poderiamos ter adicionado mais complexidade 
+
+Req. 5 - Assincronismo/concorrência (0 a 2 valores) 
+- Autoavaliação: 2 valores
+O uso de assincronismo principalmente com a Firebase Firestore permite que a aplicação continue a correr sem atrasos ou bloqueios, tornando a experiência do utilizador mais fluída e responsiva. Assim como noutras situações, como o carregamento das localizações para o mapa de forma assíncrona entre outros.
+
+Req. 6 - Texto de apresentação e auto-avaliação (0 a 0,5) 
+- Autoavaliação: 0,5 valores
+Como pedido, este ficheiro contém a autoavaliação e apresentação da aplicação.
+
+Req. 7 - Vídeo de apresentação (0 a 0,5) 
+- Autoavaliação: 0,5 valores
+Gravamos um vídeo que demonstra todas as funcionalidades da aplicação.
+
+
+Penalizações e Bonificações:
+
+PB03 - Português e inglês (0 a +0.5 valores)
+- Autoavaliação: 0,5 valores
+A aplicação está preparada para suportar tanto português como inglês, e quando o dispositivo não se encontra em português, a aplicação fica em inglês.
+
+PB04 - Outras bibliotecas (0 a +1,0 valores) 
+- Autoavaliação: 1 valor
+A utilização do Firebase e o Google Maps SDK for Android como WebServices, bibliotecas não discutida em aula e apenas sugeridas cumpre este requisito.
+
+PB05 – Uso de Fragmentos (0 a +2,0 valores) 
+- Autoavaliação: 2 valores
+Usamos Fragments para a navegação da nossa aplicação assim como BackStack para permitir a navegação entre fragmentos sem perder o histórico.
+
+PB07 - Originalidade (-20,0 a +2,0 valores) 
+- Autoavaliação: 1,5 valores.
+A aplicação, embora não inteiramente inovadora, é original e permitiu-nos explorar ferramentas que ainda não tínhamos utilizado em aula, obrigando-nos a pesquisar sobre e evitando basear-nos em projetos antigos, cumprindo assim o requisito da originalidade.
+
+
+3. Contribuições dos Autores:
+As duas autoras do trabalho trabalharam de forma equiparada em quantidade e qualidade para o desenvolvimento deste projeto. As duas participaram em todas as etapas decorrentes de desenvolvimento da mesma destacando-se cada uma nos seguintes ponto:
+
+Beatriz Sargaço:
+- Criar, atualizar e apagar contas.
+- Procurar locais turísticos.
+- Visualizar os locais turísticos num mapa implementado na app.
+- Utilizar modo claro e modo escuro na aplicação.
+
+Marisa Malveiro:
+- Filtrar a pesquisa desses locais.
+- Utilizar a aplicação tanto em Português como em Inglês.
+- Selecionar locais como favoritos.
+- Comentar sobre os locais turísticos, como também apagar os comentários.
+
+	
+
+
